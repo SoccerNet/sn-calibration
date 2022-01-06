@@ -8,7 +8,7 @@ from SoccerNet.utils import getListGames
 from tqdm import tqdm
 
 from src.camera import Camera
-from src.evaluate_detection import scale_points, distance, mirror_labels
+from src.evaluate_extremities import scale_points, distance, mirror_labels
 from src.soccerpitch import SoccerField
 
 

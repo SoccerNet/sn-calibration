@@ -549,7 +549,7 @@ if __name__ == "__main__":
 
     with tqdm(enumerate(list_games), total=len(list_games), ncols=160) as t:
         for i, game in t:
-            prediction_file = os.path.join(args.prediction, game, "prediction_task1.json")
+            prediction_file = os.path.join(args.prediction, game, "prediction_extremities.json")
 
             if not os.path.exists(prediction_file):
                 continue

@@ -344,6 +344,7 @@ fact the minimal euclidian distance between the groundtruth point and the projec
 * True positives : for classes that belong both to the prediction and the groundtruth, a predicted element is a True
   Positive if all the L2 distances between its groundtruth points and the predicted projected lines are lower than a
   certain threshold.
+
   ![](./doc/tp-condition-2.png)
 
 * False positives : contains elements that were detected with a class that do not belong to the groundtruth classes, and
