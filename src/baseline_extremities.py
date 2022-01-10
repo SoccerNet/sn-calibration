@@ -16,7 +16,7 @@ from SoccerNet.utils import getListGames
 from torchvision.models.segmentation import deeplabv3_resnet50
 from tqdm import tqdm
 
-from src.soccerpitch import SoccerField
+from src.soccerpitch import SoccerPitch
 
 
 def generate_class_synthesis(semantic_mask, radius):
@@ -30,7 +30,7 @@ def generate_class_synthesis(semantic_mask, radius):
     buckets = dict()
     kernel = np.ones((5, 5), np.uint8)
     semantic_mask = cv.erode(semantic_mask, kernel, iterations=1)
-    for k, class_name in enumerate(SoccerField.lines_classes):
+    for k, class_name in enumerate(SoccerPitch.lines_classes):
         mask = semantic_mask == k + 1
         if mask.sum() > 0:
             disk_list = synthesize_mask(mask, radius)
@@ -265,8 +265,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     lines_palette = [0, 0, 0]
-    for line_class in SoccerField.lines_classes:
-        lines_palette.extend(SoccerField.palette[line_class])
+    for line_class in SoccerPitch.lines_classes:
+        lines_palette.extend(SoccerPitch.palette[line_class])
 
     calib_net = SegmentationNetwork(
         "../resources/soccer_pitch_segmentation.pth",

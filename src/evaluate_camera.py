@@ -9,16 +9,10 @@ from tqdm import tqdm
 
 from src.camera import Camera
 from src.evaluate_extremities import scale_points, distance, mirror_labels
-from src.soccerpitch import SoccerField
+from src.soccerpitch import SoccerPitch
 
 
-def draw_lines(image, camera_annotation):
-    cam = Camera()
-    cam.from_json_parameters(camera_annotation)
-    cam.draw_colorful_pitch(image, SoccerField.lines_palette)
-
-
-def get_polylines(camera_annotation, width, height):
+def get_polylines(camera_annotation, width, height, sampling_factor=0.2):
     """
     Given a set of camera parameters, this function adapts the camera to the desired image resolution and then
     projects the 3D points belonging to the terrain model in order to give a dictionary associating the classes
@@ -35,22 +29,126 @@ def get_polylines(camera_annotation, width, height):
     cam.from_json_parameters(camera_annotation)
     if cam.image_width != width:
         cam.scale_resolution(width / cam.image_width)
-    field = SoccerField()
+    field = SoccerPitch()
     projections = dict()
-    for key, points in field.sample_field_points().items():
+    sides = [
+        np.array([1, 0, 0]),
+        np.array([1, 0, -width + 1]),
+        np.array([0, 1, 0]),
+        np.array([0, 1, -height + 1])
+    ]
+    for key, points in field.sample_field_points(sampling_factor).items():
         projections_list = []
-        for point in points:
+        in_img = False
+        prev_proj = np.zeros(3)
+        for i, point in enumerate(points):
             ext = cam.project_point(point)
-            if 0 < ext[0] < width and 0 < ext[1] < height:
+            if ext[2] < 1e-5:
+                # point at infinity or behind camera
+                continue
+            if 0 <= ext[0] < width and 0 <= ext[1] < height:
+
+                if not in_img and i > 0:
+
+                    line = np.cross(ext, prev_proj)
+                    in_img_intersections = []
+                    dist_to_ext = []
+                    for side in sides:
+                        intersection = np.cross(line, side)
+                        intersection /= intersection[2]
+                        if 0 <= intersection[0] < width and 0 <= intersection[1] < height:
+                            in_img_intersections.append(intersection)
+                            dist_to_ext.append(np.sqrt(np.sum(np.square(intersection - ext))))
+                    if in_img_intersections:
+                        intersection = in_img_intersections[np.argmin(dist_to_ext)]
+
+                        projections_list.append(
+                            {
+                                "x": intersection[0],
+                                "y": intersection[1]
+                            }
+                        )
+
                 projections_list.append(
                     {
                         "x": ext[0],
                         "y": ext[1]
                     }
                 )
+                in_img = True
+            elif in_img:
+                # first point out
+                line = np.cross(ext, prev_proj)
+
+                in_img_intersections = []
+                dist_to_ext = []
+                for side in sides:
+                    intersection = np.cross(line, side)
+                    intersection /= intersection[2]
+                    if 0 <= intersection[0] < width and 0 <= intersection[1] < height:
+                        in_img_intersections.append(intersection)
+                        dist_to_ext.append(np.sqrt(np.sum(np.square(intersection - ext))))
+                if in_img_intersections:
+                    intersection = in_img_intersections[np.argmin(dist_to_ext)]
+
+                    projections_list.append(
+                        {
+                            "x": intersection[0],
+                            "y": intersection[1]
+                        }
+                    )
+                in_img = False
+            prev_proj = ext
         if len(projections_list):
             projections[key] = projections_list
     return projections
+
+
+def distance_to_polyline(point, polyline):
+    """
+    Computes euclidian distance between a point and a polyline.
+    :param point: 2D point
+    :param polyline: a list of 2D point
+    :return: the distance value
+    """
+    if 0 < len(polyline) < 2:
+        dist = distance(point, polyline[0])
+        return dist
+    else:
+        dist_to_segments = []
+        point_np = np.array([point["x"], point["y"], 1])
+
+        for i in range(len(polyline) - 1):
+            origin_segment = np.array([
+                polyline[i]["x"],
+                polyline[i]["y"],
+                1
+            ])
+            end_segment = np.array([
+                polyline[i + 1]["x"],
+                polyline[i + 1]["y"],
+                1
+            ])
+            line = np.cross(origin_segment, end_segment)
+            line /= np.sqrt(np.square(line[0]) + np.square(line[1]))
+
+            # project point on line l
+            projected = np.cross((np.cross(np.array([line[0], line[1], 0]), point_np)), line)
+            projected = projected / projected[2]
+
+            v1 = projected - origin_segment
+            v2 = end_segment - origin_segment
+            k = np.dot(v1, v2) / np.dot(v2, v2)
+            if 0 < k < 1:
+
+                segment_distance = np.sqrt(np.sum(np.square(projected - point_np)))
+            else:
+                d1 = distance(point, polyline[i])
+                d2 = distance(point, polyline[i + 1])
+                segment_distance = np.min([d1, d2])
+
+            dist_to_segments.append(segment_distance)
+        return np.min(dist_to_segments)
 
 
 def evaluate_camera_prediction(projected_lines, groundtruth_lines, threshold):
@@ -91,6 +189,7 @@ def evaluate_camera_prediction(projected_lines, groundtruth_lines, threshold):
     common_classes = detected_classes - false_positives_classes
 
     for detected_class in common_classes:
+
         detected_points = projected_lines[detected_class]
         groundtruth_points = groundtruth_lines[detected_class]
 
@@ -98,20 +197,18 @@ def evaluate_camera_prediction(projected_lines, groundtruth_lines, threshold):
 
         all_below_dist = 1
         for point in groundtruth_points:
-            dist_to_gt = []
-            for projected_pt in detected_points:
-                dist_to_gt.append(distance(point, projected_pt))
 
-            if detected_class in dict_errors.keys():
-                dict_errors[detected_class].append(np.min(dist_to_gt))
+            dist_to_poly = distance_to_polyline(point, detected_points)
+            if dist_to_poly < threshold:
+                per_class_confusion[detected_class][0, 0] += 1
             else:
-                dict_errors[detected_class] = [np.min(dist_to_gt)]
-
-            if np.min(dist_to_gt) > threshold:
                 per_class_confusion[detected_class][0, 1] += 1
                 all_below_dist *= 0
+
+            if detected_class in dict_errors.keys():
+                dict_errors[detected_class].append(dist_to_poly)
             else:
-                per_class_confusion[detected_class][0, 0] += 1
+                dict_errors[detected_class] = [dist_to_poly]
 
         if all_below_dist:
             global_confusion_mat[0, 0] += 1
@@ -172,8 +269,10 @@ if __name__ == "__main__":
                 if img not in predictions.keys():
                     missed += 1
                     continue
-                img_prediction = get_polylines(predictions[img], args.resolution_width, args.resolution_height)
                 img_groundtruth = line_annotations[img]
+
+                img_prediction = get_polylines(predictions[img], args.resolution_width, args.resolution_height,
+                                               sampling_factor=0.9)
 
                 confusion1, per_class_conf1, reproj_errors1 = evaluate_camera_prediction(img_prediction,
                                                                                          img_groundtruth,

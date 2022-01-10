@@ -7,7 +7,7 @@ import numpy as np
 from SoccerNet.utils import getListGames
 from tqdm import tqdm
 
-from src.soccerpitch import SoccerField
+from src.soccerpitch import SoccerPitch
 
 
 def distance(point1, point2):
@@ -31,7 +31,7 @@ def mirror_labels(lines_dict):
     """
     mirrored_dict = dict()
     for line_class, value in lines_dict.items():
-        mirrored_dict[SoccerField.symetric_classes[line_class]] = value
+        mirrored_dict[SoccerPitch.symetric_classes[line_class]] = value
     return mirrored_dict
 
 

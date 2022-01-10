@@ -17,7 +17,7 @@ from SoccerNet.utils import getListGames
 from torch.utils.data import Dataset, DataLoader
 from tqdm import tqdm
 
-from src.soccerpitch import SoccerField
+from src.soccerpitch import SoccerPitch
 
 
 class SNV3Dataset(Dataset):
@@ -194,7 +194,7 @@ class SoccerNetDataset(Dataset):
 
                 for line in element["lines"]:
                     class_name = INVERSE_FRAME_CLASS_DICTIONARY[line[1].item()]
-                    if class_name in SoccerField.lines_classes:
+                    if class_name in SoccerPitch.lines_classes:
                         points_list = []
                         for i, point in enumerate(line[0]):
                             if i % 2 == 0:
@@ -224,7 +224,7 @@ class SoccerNetDataset(Dataset):
         img -= self.mean
         img /= self.std
         img = img.transpose((2, 0, 1))
-        for class_number, class_ in enumerate(SoccerField.lines_classes):
+        for class_number, class_ in enumerate(SoccerPitch.lines_classes):
             if class_ in item["annotations"].keys():
                 key = class_
                 line = item["annotations"][key]

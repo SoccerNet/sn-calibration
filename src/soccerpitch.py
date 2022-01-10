@@ -1,7 +1,7 @@
 import numpy as np
 
 
-class SoccerField:
+class SoccerPitch:
     """Static class variables that are specified by the rules of the game """
     GOAL_LINE_TO_PENALTY_MARK = 11.0
     PENALTY_AREA_WIDTH = 40.32
@@ -118,98 +118,98 @@ class SoccerField:
         self.center_mark = np.array([0, 0, 0], dtype='float')
         self.halfway_and_bottom_touch_line_mark = np.array([0, pitch_width / 2.0, 0], dtype='float')
         self.halfway_and_top_touch_line_mark = np.array([0, -pitch_width / 2.0, 0], dtype='float')
-        self.halfway_line_and_center_circle_top_mark = np.array([0, -SoccerField.CENTER_CIRCLE_RADIUS, 0],
+        self.halfway_line_and_center_circle_top_mark = np.array([0, -SoccerPitch.CENTER_CIRCLE_RADIUS, 0],
                                                                 dtype='float')
-        self.halfway_line_and_center_circle_bottom_mark = np.array([0, SoccerField.CENTER_CIRCLE_RADIUS, 0],
+        self.halfway_line_and_center_circle_bottom_mark = np.array([0, SoccerPitch.CENTER_CIRCLE_RADIUS, 0],
                                                                    dtype='float')
         self.bottom_right_corner = np.array([pitch_length / 2.0, pitch_width / 2.0, 0], dtype='float')
         self.bottom_left_corner = np.array([-pitch_length / 2.0, pitch_width / 2.0, 0], dtype='float')
         self.top_right_corner = np.array([pitch_length / 2.0, -pitch_width / 2.0, 0], dtype='float')
         self.top_left_corner = np.array([-pitch_length / 2.0, -34, 0], dtype='float')
 
-        self.left_goal_bottom_left_post = np.array([-pitch_length / 2.0, SoccerField.GOAL_LENGTH / 2., 0.],
+        self.left_goal_bottom_left_post = np.array([-pitch_length / 2.0, SoccerPitch.GOAL_LENGTH / 2., 0.],
                                                    dtype='float')
         self.left_goal_top_left_post = np.array(
-            [-pitch_length / 2.0, SoccerField.GOAL_LENGTH / 2., -SoccerField.GOAL_HEIGHT], dtype='float')
-        self.left_goal_bottom_right_post = np.array([-pitch_length / 2.0, -SoccerField.GOAL_LENGTH / 2., 0.],
+            [-pitch_length / 2.0, SoccerPitch.GOAL_LENGTH / 2., -SoccerPitch.GOAL_HEIGHT], dtype='float')
+        self.left_goal_bottom_right_post = np.array([-pitch_length / 2.0, -SoccerPitch.GOAL_LENGTH / 2., 0.],
                                                     dtype='float')
         self.left_goal_top_right_post = np.array(
-            [-pitch_length / 2.0, -SoccerField.GOAL_LENGTH / 2., -SoccerField.GOAL_HEIGHT], dtype='float')
+            [-pitch_length / 2.0, -SoccerPitch.GOAL_LENGTH / 2., -SoccerPitch.GOAL_HEIGHT], dtype='float')
 
-        self.right_goal_bottom_left_post = np.array([pitch_length / 2.0, -SoccerField.GOAL_LENGTH / 2., 0.],
+        self.right_goal_bottom_left_post = np.array([pitch_length / 2.0, -SoccerPitch.GOAL_LENGTH / 2., 0.],
                                                     dtype='float')
         self.right_goal_top_left_post = np.array(
-            [pitch_length / 2.0, -SoccerField.GOAL_LENGTH / 2., -SoccerField.GOAL_HEIGHT], dtype='float')
-        self.right_goal_bottom_right_post = np.array([pitch_length / 2.0, SoccerField.GOAL_LENGTH / 2., 0.],
+            [pitch_length / 2.0, -SoccerPitch.GOAL_LENGTH / 2., -SoccerPitch.GOAL_HEIGHT], dtype='float')
+        self.right_goal_bottom_right_post = np.array([pitch_length / 2.0, SoccerPitch.GOAL_LENGTH / 2., 0.],
                                                      dtype='float')
         self.right_goal_top_right_post = np.array(
-            [pitch_length / 2.0, SoccerField.GOAL_LENGTH / 2., -SoccerField.GOAL_HEIGHT], dtype='float')
+            [pitch_length / 2.0, SoccerPitch.GOAL_LENGTH / 2., -SoccerPitch.GOAL_HEIGHT], dtype='float')
 
-        self.left_penalty_mark = np.array([-pitch_length / 2.0 + SoccerField.GOAL_LINE_TO_PENALTY_MARK, 0, 0],
+        self.left_penalty_mark = np.array([-pitch_length / 2.0 + SoccerPitch.GOAL_LINE_TO_PENALTY_MARK, 0, 0],
                                           dtype='float')
-        self.right_penalty_mark = np.array([pitch_length / 2.0 - SoccerField.GOAL_LINE_TO_PENALTY_MARK, 0, 0],
+        self.right_penalty_mark = np.array([pitch_length / 2.0 - SoccerPitch.GOAL_LINE_TO_PENALTY_MARK, 0, 0],
                                            dtype='float')
 
         self.left_penalty_area_top_right_corner = np.array(
-            [-pitch_length / 2.0 + SoccerField.PENALTY_AREA_LENGTH, -SoccerField.PENALTY_AREA_WIDTH / 2.0, 0],
+            [-pitch_length / 2.0 + SoccerPitch.PENALTY_AREA_LENGTH, -SoccerPitch.PENALTY_AREA_WIDTH / 2.0, 0],
             dtype='float')
         self.left_penalty_area_top_left_corner = np.array(
-            [-pitch_length / 2.0, -SoccerField.PENALTY_AREA_WIDTH / 2.0, 0],
+            [-pitch_length / 2.0, -SoccerPitch.PENALTY_AREA_WIDTH / 2.0, 0],
             dtype='float')
         self.left_penalty_area_bottom_right_corner = np.array(
-            [-pitch_length / 2.0 + SoccerField.PENALTY_AREA_LENGTH, SoccerField.PENALTY_AREA_WIDTH / 2.0, 0],
+            [-pitch_length / 2.0 + SoccerPitch.PENALTY_AREA_LENGTH, SoccerPitch.PENALTY_AREA_WIDTH / 2.0, 0],
             dtype='float')
         self.left_penalty_area_bottom_left_corner = np.array(
-            [-pitch_length / 2.0, SoccerField.PENALTY_AREA_WIDTH / 2.0, 0],
+            [-pitch_length / 2.0, SoccerPitch.PENALTY_AREA_WIDTH / 2.0, 0],
             dtype='float')
         self.right_penalty_area_top_right_corner = np.array(
-            [pitch_length / 2.0, -SoccerField.PENALTY_AREA_WIDTH / 2.0, 0],
+            [pitch_length / 2.0, -SoccerPitch.PENALTY_AREA_WIDTH / 2.0, 0],
             dtype='float')
         self.right_penalty_area_top_left_corner = np.array(
-            [pitch_length / 2.0 - SoccerField.PENALTY_AREA_LENGTH, -SoccerField.PENALTY_AREA_WIDTH / 2.0, 0],
+            [pitch_length / 2.0 - SoccerPitch.PENALTY_AREA_LENGTH, -SoccerPitch.PENALTY_AREA_WIDTH / 2.0, 0],
             dtype='float')
         self.right_penalty_area_bottom_right_corner = np.array(
-            [pitch_length / 2.0, SoccerField.PENALTY_AREA_WIDTH / 2.0, 0],
+            [pitch_length / 2.0, SoccerPitch.PENALTY_AREA_WIDTH / 2.0, 0],
             dtype='float')
         self.right_penalty_area_bottom_left_corner = np.array(
-            [pitch_length / 2.0 - SoccerField.PENALTY_AREA_LENGTH, SoccerField.PENALTY_AREA_WIDTH / 2.0, 0],
+            [pitch_length / 2.0 - SoccerPitch.PENALTY_AREA_LENGTH, SoccerPitch.PENALTY_AREA_WIDTH / 2.0, 0],
             dtype='float')
 
         self.left_goal_area_top_right_corner = np.array(
-            [-pitch_length / 2.0 + SoccerField.GOAL_AREA_LENGTH, -SoccerField.GOAL_AREA_WIDTH / 2.0, 0], dtype='float')
-        self.left_goal_area_top_left_corner = np.array([-pitch_length / 2.0, - SoccerField.GOAL_AREA_WIDTH / 2.0, 0],
+            [-pitch_length / 2.0 + SoccerPitch.GOAL_AREA_LENGTH, -SoccerPitch.GOAL_AREA_WIDTH / 2.0, 0], dtype='float')
+        self.left_goal_area_top_left_corner = np.array([-pitch_length / 2.0, - SoccerPitch.GOAL_AREA_WIDTH / 2.0, 0],
                                                        dtype='float')
         self.left_goal_area_bottom_right_corner = np.array(
-            [-pitch_length / 2.0 + SoccerField.GOAL_AREA_LENGTH, SoccerField.GOAL_AREA_WIDTH / 2.0, 0], dtype='float')
-        self.left_goal_area_bottom_left_corner = np.array([-pitch_length / 2.0, SoccerField.GOAL_AREA_WIDTH / 2.0, 0],
+            [-pitch_length / 2.0 + SoccerPitch.GOAL_AREA_LENGTH, SoccerPitch.GOAL_AREA_WIDTH / 2.0, 0], dtype='float')
+        self.left_goal_area_bottom_left_corner = np.array([-pitch_length / 2.0, SoccerPitch.GOAL_AREA_WIDTH / 2.0, 0],
                                                           dtype='float')
-        self.right_goal_area_top_right_corner = np.array([pitch_length / 2.0, -SoccerField.GOAL_AREA_WIDTH / 2.0, 0],
+        self.right_goal_area_top_right_corner = np.array([pitch_length / 2.0, -SoccerPitch.GOAL_AREA_WIDTH / 2.0, 0],
                                                          dtype='float')
         self.right_goal_area_top_left_corner = np.array(
-            [pitch_length / 2.0 - SoccerField.GOAL_AREA_LENGTH, -SoccerField.GOAL_AREA_WIDTH / 2.0, 0], dtype='float')
-        self.right_goal_area_bottom_right_corner = np.array([pitch_length / 2.0, SoccerField.GOAL_AREA_WIDTH / 2.0, 0],
+            [pitch_length / 2.0 - SoccerPitch.GOAL_AREA_LENGTH, -SoccerPitch.GOAL_AREA_WIDTH / 2.0, 0], dtype='float')
+        self.right_goal_area_bottom_right_corner = np.array([pitch_length / 2.0, SoccerPitch.GOAL_AREA_WIDTH / 2.0, 0],
                                                             dtype='float')
         self.right_goal_area_bottom_left_corner = np.array(
-            [pitch_length / 2.0 - SoccerField.GOAL_AREA_LENGTH, SoccerField.GOAL_AREA_WIDTH / 2.0, 0], dtype='float')
+            [pitch_length / 2.0 - SoccerPitch.GOAL_AREA_LENGTH, SoccerPitch.GOAL_AREA_WIDTH / 2.0, 0], dtype='float')
 
-        x = -pitch_length / 2.0 + SoccerField.PENALTY_AREA_LENGTH;
-        dx = SoccerField.PENALTY_AREA_LENGTH - SoccerField.GOAL_LINE_TO_PENALTY_MARK;
-        y = -np.sqrt(SoccerField.CENTER_CIRCLE_RADIUS * SoccerField.CENTER_CIRCLE_RADIUS - dx * dx);
+        x = -pitch_length / 2.0 + SoccerPitch.PENALTY_AREA_LENGTH;
+        dx = SoccerPitch.PENALTY_AREA_LENGTH - SoccerPitch.GOAL_LINE_TO_PENALTY_MARK;
+        y = -np.sqrt(SoccerPitch.CENTER_CIRCLE_RADIUS * SoccerPitch.CENTER_CIRCLE_RADIUS - dx * dx);
         self.top_left_16M_penalty_arc_mark = np.array([x, y, 0], dtype='float')
 
-        x = pitch_length / 2.0 - SoccerField.PENALTY_AREA_LENGTH;
-        dx = SoccerField.PENALTY_AREA_LENGTH - SoccerField.GOAL_LINE_TO_PENALTY_MARK;
-        y = -np.sqrt(SoccerField.CENTER_CIRCLE_RADIUS * SoccerField.CENTER_CIRCLE_RADIUS - dx * dx);
+        x = pitch_length / 2.0 - SoccerPitch.PENALTY_AREA_LENGTH;
+        dx = SoccerPitch.PENALTY_AREA_LENGTH - SoccerPitch.GOAL_LINE_TO_PENALTY_MARK;
+        y = -np.sqrt(SoccerPitch.CENTER_CIRCLE_RADIUS * SoccerPitch.CENTER_CIRCLE_RADIUS - dx * dx);
         self.top_right_16M_penalty_arc_mark = np.array([x, y, 0], dtype='float')
 
-        x = -pitch_length / 2.0 + SoccerField.PENALTY_AREA_LENGTH;
-        dx = SoccerField.PENALTY_AREA_LENGTH - SoccerField.GOAL_LINE_TO_PENALTY_MARK;
-        y = np.sqrt(SoccerField.CENTER_CIRCLE_RADIUS * SoccerField.CENTER_CIRCLE_RADIUS - dx * dx);
+        x = -pitch_length / 2.0 + SoccerPitch.PENALTY_AREA_LENGTH;
+        dx = SoccerPitch.PENALTY_AREA_LENGTH - SoccerPitch.GOAL_LINE_TO_PENALTY_MARK;
+        y = np.sqrt(SoccerPitch.CENTER_CIRCLE_RADIUS * SoccerPitch.CENTER_CIRCLE_RADIUS - dx * dx);
         self.bottom_left_16M_penalty_arc_mark = np.array([x, y, 0], dtype='float')
 
-        x = pitch_length / 2.0 - SoccerField.PENALTY_AREA_LENGTH;
-        dx = SoccerField.PENALTY_AREA_LENGTH - SoccerField.GOAL_LINE_TO_PENALTY_MARK;
-        y = np.sqrt(SoccerField.CENTER_CIRCLE_RADIUS * SoccerField.CENTER_CIRCLE_RADIUS - dx * dx);
+        x = pitch_length / 2.0 - SoccerPitch.PENALTY_AREA_LENGTH;
+        dx = SoccerPitch.PENALTY_AREA_LENGTH - SoccerPitch.GOAL_LINE_TO_PENALTY_MARK;
+        y = np.sqrt(SoccerPitch.CENTER_CIRCLE_RADIUS * SoccerPitch.CENTER_CIRCLE_RADIUS - dx * dx);
         self.bottom_right_16M_penalty_arc_mark = np.array([x, y, 0], dtype='float')
 
         # self.set_elevations(elevation)
@@ -430,18 +430,18 @@ class SoccerField:
 
         if toAngle < fromAngle:
             toAngle += 2 * np.pi
-        x1 = center[0] + np.cos(fromAngle) * SoccerField.CENTER_CIRCLE_RADIUS
-        y1 = center[1] + np.sin(fromAngle) * SoccerField.CENTER_CIRCLE_RADIUS
+        x1 = center[0] + np.cos(fromAngle) * SoccerPitch.CENTER_CIRCLE_RADIUS
+        y1 = center[1] + np.sin(fromAngle) * SoccerPitch.CENTER_CIRCLE_RADIUS
         z1 = 0.
         point = np.array((x1, y1, z1))
         polyline = [point]
-        length = SoccerField.CENTER_CIRCLE_RADIUS * (toAngle - fromAngle)
+        length = SoccerPitch.CENTER_CIRCLE_RADIUS * (toAngle - fromAngle)
         nb_pts = int(length / dist)
-        dangle = dist / SoccerField.CENTER_CIRCLE_RADIUS
+        dangle = dist / SoccerPitch.CENTER_CIRCLE_RADIUS
         for i in range(1, nb_pts):
             angle = fromAngle + i * dangle
-            x = center[0] + np.cos(angle) * SoccerField.CENTER_CIRCLE_RADIUS
-            y = center[1] + np.sin(angle) * SoccerField.CENTER_CIRCLE_RADIUS
+            x = center[0] + np.cos(angle) * SoccerPitch.CENTER_CIRCLE_RADIUS
+            y = center[1] + np.sin(angle) * SoccerPitch.CENTER_CIRCLE_RADIUS
             z = 0
             point = np.array((x, y, z))
             polyline.append(point)
@@ -467,22 +467,22 @@ class SoccerField:
                                          bottom[0] - center[0]) + 2 * np.pi
                 if toAngle < fromAngle:
                     toAngle += 2 * np.pi
-                x1 = center[0] + np.cos(fromAngle) * SoccerField.CENTER_CIRCLE_RADIUS
-                y1 = center[1] + np.sin(fromAngle) * SoccerField.CENTER_CIRCLE_RADIUS
+                x1 = center[0] + np.cos(fromAngle) * SoccerPitch.CENTER_CIRCLE_RADIUS
+                y1 = center[1] + np.sin(fromAngle) * SoccerPitch.CENTER_CIRCLE_RADIUS
                 z1 = 0.
-                xn = center[0] + np.cos(toAngle) * SoccerField.CENTER_CIRCLE_RADIUS
-                yn = center[1] + np.sin(toAngle) * SoccerField.CENTER_CIRCLE_RADIUS
+                xn = center[0] + np.cos(toAngle) * SoccerPitch.CENTER_CIRCLE_RADIUS
+                yn = center[1] + np.sin(toAngle) * SoccerPitch.CENTER_CIRCLE_RADIUS
                 zn = 0.
                 start = np.array((x1, y1, z1))
                 end = np.array((xn, yn, zn))
                 polyline = [start]
-                length = SoccerField.CENTER_CIRCLE_RADIUS * (toAngle - fromAngle)
+                length = SoccerPitch.CENTER_CIRCLE_RADIUS * (toAngle - fromAngle)
                 nb_pts = int(length / dist)
-                dangle = dist / SoccerField.CENTER_CIRCLE_RADIUS
+                dangle = dist / SoccerPitch.CENTER_CIRCLE_RADIUS
                 for i in range(1, nb_pts + 1):
                     angle = fromAngle + i * dangle
-                    x = center[0] + np.cos(angle) * SoccerField.CENTER_CIRCLE_RADIUS
-                    y = center[1] + np.sin(angle) * SoccerField.CENTER_CIRCLE_RADIUS
+                    x = center[0] + np.cos(angle) * SoccerPitch.CENTER_CIRCLE_RADIUS
+                    y = center[1] + np.sin(angle) * SoccerPitch.CENTER_CIRCLE_RADIUS
                     z = 0
                     point = np.array((x, y, z))
                     polyline.append(point)
