@@ -37,6 +37,15 @@ here :   https://soccer-net.org/
 The authors give access to template code and a python package to get started with the dataset. All the documentation
 about these tools can be found here : https://github.com/SilvioGiancola/SoccerNetv2-DevKit
 
+All the data needed for challenge can be downloaded with these lines : 
+
+```python
+from SoccerNet.Downloader import SoccerNetDownloader
+mySoccerNetDownloader = SoccerNetDownloader(LocalDirectory="path/to/SoccerNet")
+mySoccerNetDownloader.password = "***"
+mySoccerNetDownloader.downloadGames(files=["labels-calibration.json", "Frames-calibration.zip"], split=["train","valid","test"], task="frames") # download frames and labels for the 400 games of SN v3 - Requires around 60 GB of local storage
+```
+
 Historically, the dataset was first released for an action spotting task. In its first version, the images corresponding
 to soccer actions (goals, fouls, etc) were identified. In the following editions, more annotations have been associated
 to those images. In the last version of the dataset (SoccerNetV3), the extremities of the lines of the soccer pitch
@@ -338,11 +347,11 @@ detected, all its extremities (or all points annotated for circles) must have a 
 threshold.
 
 As we allow lens distortion, the projection of the pitch line markings can be curvated. This is why we sample the pitch
-model every few centimeters, and we consider that the distance between a projected line and a groundtruth point is in
-fact the minimal euclidian distance between the groundtruth point and the projected sampled points.
+model every few centimeters, and we consider that the distance between a projected pitch marking and a groundtruth point is in
+fact the euclidian distance between the groundtruth point and the polyline given by the projection of sampled points.
 
 * True positives : for classes that belong both to the prediction and the groundtruth, a predicted element is a True
-  Positive if all the L2 distances between its groundtruth points and the predicted projected lines are lower than a
+  Positive if all the L2 distances between its groundtruth points and the predicted polyline are lower than a
   certain threshold.
 
   ![](./doc/tp-condition-2.png)
@@ -371,18 +380,16 @@ accounts for each point annotated separately. This metric is only for informatio
 ranking of submissions.
 
 The prediction is obtained by sampling each 3D real world pitch element every few centimeters, which means that the
-number of points in the prediction may be variable for the same camera parameters. Of course the sampling distance is
-fixed for the evaluation, and is high enough in order to approximate the distance from a point to a line by the distance
-between the point and the closest projected sampled point. This gives a very high number of predicted points for a
-certain class, and thus we find a workaround to count false positives.
+number of points in the prediction may be variable for the same camera parameters. This gives a very high number of 
+predicted points for a certain class, and thus we find a workaround to count false positives.
 
 The confusion matrices are computed per class in the following way :
 
 * True positives : for classes that belong both to the prediction and the groundtruth, a predicted point is counted in
-  the True Positives if the L2 distance from this groundtruth point to the predicted projected line is lower than a
+  the True Positives if the L2 distance from this groundtruth point to the predicted polyline is lower than a
   certain threshold **t**.
 
-* False positives : counts groundtruth points that have a distance to the corresponding predicted line that is higher
+* False positives : counts groundtruth points that have a distance to the corresponding predicted polyline that is higher
   than the threshold value **t**. For predicted lines that do not belong to the groundtruth, we can not count every
   predicted point as a false positive because the number of points depend on the sampling factor that has to be high
   enough, which can lower a lot our metric. We decided arbitrarily to count for this kind of false positive the number
