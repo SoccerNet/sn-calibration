@@ -228,7 +228,7 @@ if __name__ == "__main__":
 
                             if len(point_matches) > 3:
                                 cam.refine_camera(point_matches)
-                                # cam.draw_colorful_pitch(cv_image, SoccerField.palette)
+                                # cam.draw_colorful_pitch(cv_image, SoccerPitch.palette)
                                 # print(image_path)
                                 # cv.imshow("colorful pitch", cv_image)
                                 # cv.waitKey(0)

@@ -42,8 +42,7 @@ All the data needed for challenge can be downloaded with these lines :
 ```python
 from SoccerNet.Downloader import SoccerNetDownloader
 mySoccerNetDownloader = SoccerNetDownloader(LocalDirectory="path/to/SoccerNet")
-mySoccerNetDownloader.password = "***"
-mySoccerNetDownloader.downloadGames(files=["labels-calibration.json", "Frames-calibration.zip"], split=["train","valid","test"], task="frames") # download frames and labels for the 400 games of SN v3 - Requires around 60 GB of local storage
+mySoccerNetDownloader.download(task="calibration", split=["train","valid","test","challenge"])
 ```
 
 Historically, the dataset was first released for an action spotting task. In its first version, the images corresponding
@@ -63,7 +62,7 @@ game (https://digitalhub.fifa.com/m/5371a6dcc42fbb44/original/d6g1medsi8jrrd3e4i
 Moreover, we define a set of semantic labels for each semantic element of the soccer pitch. We also define the bottom
 side of the pitch as the one where the main and 16 meters broadcast cameras are installed.
 
-![](./doc/seman-resized.jpg)
+![](./doc/soccernet_classes.png)
 
 1. Big rect. left bottom,
 2. Big rect. left main,
@@ -164,7 +163,7 @@ The best algorithm will be selected based on accuracy values. We define the sets
 false nagatives as follows:
 
 * True positives : for classes that belong both to the prediction and the groundtruth, a predicted extremity is a True
-  Positive if its L2 distance to the corresponding groundtruth extremity is lower than a certain threshold.
+  Positive if its L2 distance to the corresponding groundtruth extremity is lower than a certain threshold **t**.
 * False positives : contains points that were detected with a class that do not belong to the groundtruth classes, and
   points with valid classes whose smallest distance to groundtruth extremity is higher than the threshold.
 * False negatives: All points of a class only present in the groundtruth are counted as False Negatives.
@@ -173,7 +172,7 @@ false nagatives as follows:
 The Accuracy for a threshold of t pixels is given by : **Acc@t = TP/(TP+FN+FP)**. We evaluate the accuracy at 5, 10 and
 20 pixels.
 
-[dessin pour diff tp fp]
+[](./doc/threshold_illustration.png)
 
 Note that the order of the extremities in the prediction does not matter as we take the minimal distance to the
 extremities present in the groundtruth.
