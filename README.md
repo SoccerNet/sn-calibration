@@ -172,7 +172,7 @@ false nagatives as follows:
 The Accuracy for a threshold of t pixels is given by : **Acc@t = TP/(TP+FN+FP)**. We evaluate the accuracy at 5, 10 and
 20 pixels.
 
-[](./doc/threshold_illustration.png)
+![](./doc/threshold_illustration.png)
 
 Note that the order of the extremities in the prediction does not matter as we take the minimal distance to the
 extremities present in the groundtruth.
