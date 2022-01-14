@@ -417,10 +417,11 @@ class SoccerPitch:
             self.right_goal_bottom_right_post
         ]
 
-    def sample_field_points(self, dist=0.2):
+    def sample_field_points(self, dist=0.1, dist_circles=0.2):
         """
         Samples each pitch element every dist meters, returns a dictionary associating the class of the element with a list of points sampled along this element.
         :param dist: the distance in meters between each point sampled
+        :param dist_circles: the distance in meters between each point sampled on circles
         :return:  a dictionary associating the class of the element with a list of points sampled along this element.
         """
         polylines = dict()
@@ -436,8 +437,8 @@ class SoccerPitch:
         point = np.array((x1, y1, z1))
         polyline = [point]
         length = SoccerPitch.CENTER_CIRCLE_RADIUS * (toAngle - fromAngle)
-        nb_pts = int(length / dist)
-        dangle = dist / SoccerPitch.CENTER_CIRCLE_RADIUS
+        nb_pts = int(length / dist_circles)
+        dangle = dist_circles / SoccerPitch.CENTER_CIRCLE_RADIUS
         for i in range(1, nb_pts):
             angle = fromAngle + i * dangle
             x = center[0] + np.cos(angle) * SoccerPitch.CENTER_CIRCLE_RADIUS
@@ -477,8 +478,8 @@ class SoccerPitch:
                 end = np.array((xn, yn, zn))
                 polyline = [start]
                 length = SoccerPitch.CENTER_CIRCLE_RADIUS * (toAngle - fromAngle)
-                nb_pts = int(length / dist)
-                dangle = dist / SoccerPitch.CENTER_CIRCLE_RADIUS
+                nb_pts = int(length / dist_circles)
+                dangle = dist_circles / SoccerPitch.CENTER_CIRCLE_RADIUS
                 for i in range(1, nb_pts + 1):
                     angle = fromAngle + i * dangle
                     x = center[0] + np.cos(angle) * SoccerPitch.CENTER_CIRCLE_RADIUS

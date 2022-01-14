@@ -12,7 +12,6 @@ import torch
 import torch.backends.cudnn
 import torch.nn as nn
 from PIL import Image
-from SoccerNet.utils import getListGames
 from torchvision.models.segmentation import deeplabv3_resnet50
 from tqdm import tqdm
 
@@ -252,12 +251,12 @@ class SegmentationNetwork:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Test')
 
-    parser.add_argument('-s', '--soccernet', default="/mnt/ahl03/data/football/SoccerNet/data/", type=str,
+    parser.add_argument('-s', '--soccernet', default="./annotations/", type=str,
                         help='Path to the SoccerNet-V3 dataset folder')
-    parser.add_argument('-p', '--prediction', default="./results", required=False, type=str,
+    parser.add_argument('-p', '--prediction', default="./results_bis", required=False, type=str,
                         help="Path to the prediction folder")
     parser.add_argument('--split', required=False, type=str, default="test", help='Select the split of data')
-    parser.add_argument('--masks', required=False, type=bool, default=True, help='Save masks in prediction directory')
+    parser.add_argument('--masks', required=False, type=bool, default=False, help='Save masks in prediction directory')
     parser.add_argument('--resolution_width', required=False, type=int, default=640,
                         help='width resolution of the images')
     parser.add_argument('--resolution_height', required=False, type=int, default=360,
@@ -273,34 +272,38 @@ if __name__ == "__main__":
         "../resources/mean.npy",
         "../resources/std.npy")
 
-    list_games = getListGames(args.split, task="frames")
-    with tqdm(enumerate(list_games), total=len(list_games), ncols=160) as t:
-        for i, game in t:
+    dataset_dir = os.path.join(args.soccernet, args.split)
+    if not os.path.exists(dataset_dir):
+        print("Invalid dataset path !")
+        exit(-1)
 
-            frames_folder = os.path.join(args.soccernet, game, "v3_frames")
-            output_prediction_folder = os.path.join(args.prediction, game)
+    frames = [f for f in os.listdir(dataset_dir) if ".jpg" in f]
+    with tqdm(enumerate(frames), total=len(frames), ncols=160) as t:
+        for i, frame in t:
+
+            output_prediction_folder = os.path.join(args.prediction, args.split)
             if not os.path.exists(output_prediction_folder):
                 os.makedirs(output_prediction_folder)
             prediction = dict()
             count = 0
-            if os.path.isdir(frames_folder):
 
-                for frame in os.listdir(frames_folder):
-                    frame_path = os.path.join(frames_folder, frame)
+            frame_path = os.path.join(dataset_dir, frame)
 
-                    image = cv.imread(frame_path)
-                    semlines = calib_net.analyse_image(image)
-                    if args.masks:
-                        mask = Image.fromarray(semlines.astype(np.uint8)).convert('P')
-                        mask.putpalette(lines_palette)
-                        mask_file = os.path.join(output_prediction_folder, frame)
-                        mask.save(mask_file)
-                    skeletons = generate_class_synthesis(semlines, 6)
-                    extremities = get_line_extremities(skeletons, 40, args.resolution_width, args.resolution_height)
+            frame_index = frame.split(".")[0]
 
-                    prediction[frame] = extremities
-                    count += 1
+            image = cv.imread(frame_path)
+            semlines = calib_net.analyse_image(image)
+            if args.masks:
+                mask = Image.fromarray(semlines.astype(np.uint8)).convert('P')
+                mask.putpalette(lines_palette)
+                mask_file = os.path.join(output_prediction_folder, frame)
+                mask.save(mask_file)
+            skeletons = generate_class_synthesis(semlines, 6)
+            extremities = get_line_extremities(skeletons, 40, args.resolution_width, args.resolution_height)
 
-            prediction_file = os.path.join(output_prediction_folder, "prediction_extremities.json")
+            prediction = extremities
+            count += 1
+
+            prediction_file = os.path.join(output_prediction_folder, f"extremities_{frame_index}.json")
             with open(prediction_file, "w") as f:
                 json.dump(prediction, f, indent=4)

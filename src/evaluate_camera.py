@@ -4,7 +4,6 @@ import os
 
 import matplotlib.pyplot as plt
 import numpy as np
-from SoccerNet.utils import getListGames
 from tqdm import tqdm
 
 from src.camera import Camera
@@ -224,10 +223,10 @@ if __name__ == "__main__":
 
     parser.add_argument('-s', '--soccernet', default="./annotations", type=str,
                         help='Path to the SoccerNet-V3 dataset folder')
-    parser.add_argument('-p', '--prediction', default="/mnt/ahl03/users/fmg/results/soccernet_deeplab_baseline",
+    parser.add_argument('-p', '--prediction', default="./results_bis",
                         required=False, type=str,
                         help="Path to the prediction folder")
-    parser.add_argument('-t', '--threshold', default=10, required=False, type=int,
+    parser.add_argument('-t', '--threshold', default=20, required=False, type=int,
                         help="Accuracy threshold in pixels")
     parser.add_argument('--split', required=False, type=str, default="test", help='Select the split of data')
     parser.add_argument('--resolution_width', required=False, type=int, default=960,
@@ -241,17 +240,26 @@ if __name__ == "__main__":
     recalls = []
     dict_errors = {}
     per_class_confusion_dict = {}
-    points_per_circle = 0
-    n_circles = 0
 
-    list_games = getListGames(args.split, task="frames")
+    dataset_dir = os.path.join(args.soccernet, args.split)
+    if not os.path.exists(dataset_dir):
+        print("Invalid dataset path !")
+        exit(-1)
+
+    annotation_files = [f for f in os.listdir(dataset_dir) if ".json" in f]
+
     missed, total_frames = 0, 0
-    with tqdm(enumerate(list_games), total=len(list_games), ncols=160) as t:
-        for i, game in t:
-            annotation_file = os.path.join(args.soccernet, game, "labels-calibration.json")
-            prediction_file = os.path.join(args.prediction, game, "prediction_cameras.json")
+    with tqdm(enumerate(annotation_files), total=len(annotation_files), ncols=160) as t:
+        for i, annotation_file in t:
+            frame_index = annotation_file.split(".")[0]
+            annotation_file = os.path.join(args.soccernet, args.split, annotation_file)
+            prediction_file = os.path.join(args.prediction, args.split, f"camera_{frame_index}.json")
+
+            total_frames += 1
 
             if not os.path.exists(prediction_file):
+                missed += 1
+
                 continue
 
             with open(annotation_file, 'r') as f:
@@ -262,65 +270,59 @@ if __name__ == "__main__":
 
             line_annotations = scale_points(line_annotations, args.resolution_width, args.resolution_height)
 
-            for img in line_annotations.keys():
-                total_frames += 1
-                image_path = os.path.join(args.soccernet, game, "v3_frames", img)
+            image_path = os.path.join(args.soccernet, args.split, f"{frame_index}.jpg")
 
-                if img not in predictions.keys():
-                    missed += 1
-                    continue
-                img_groundtruth = line_annotations[img]
+            img_groundtruth = line_annotations
 
-                img_prediction = get_polylines(predictions[img], args.resolution_width, args.resolution_height,
-                                               sampling_factor=0.9)
+            img_prediction = get_polylines(predictions, args.resolution_width, args.resolution_height,
+                                           sampling_factor=0.9)
 
-                confusion1, per_class_conf1, reproj_errors1 = evaluate_camera_prediction(img_prediction,
-                                                                                         img_groundtruth,
-                                                                                         args.threshold)
+            confusion1, per_class_conf1, reproj_errors1 = evaluate_camera_prediction(img_prediction,
+                                                                                     img_groundtruth,
+                                                                                     args.threshold)
 
-                confusion2, per_class_conf2, reproj_errors2 = evaluate_camera_prediction(img_prediction,
-                                                                                         mirror_labels(img_groundtruth),
-                                                                                         args.threshold)
+            confusion2, per_class_conf2, reproj_errors2 = evaluate_camera_prediction(img_prediction,
+                                                                                     mirror_labels(img_groundtruth),
+                                                                                     args.threshold)
 
-                accuracy1, accuracy2 = 0., 0.
-                if confusion1.sum() > 0:
-                    accuracy1 = confusion1[0, 0] / confusion1.sum()
+            accuracy1, accuracy2 = 0., 0.
+            if confusion1.sum() > 0:
+                accuracy1 = confusion1[0, 0] / confusion1.sum()
 
-                if confusion2.sum() > 0:
-                    accuracy2 = confusion2[0, 0] / confusion2.sum()
+            if confusion2.sum() > 0:
+                accuracy2 = confusion2[0, 0] / confusion2.sum()
 
-                if accuracy1 > accuracy2:
-                    accuracy = accuracy1
-                    confusion = confusion1
-                    per_class_conf = per_class_conf1
-                    reproj_errors = reproj_errors1
+            if accuracy1 > accuracy2:
+                accuracy = accuracy1
+                confusion = confusion1
+                per_class_conf = per_class_conf1
+                reproj_errors = reproj_errors1
+            else:
+                accuracy = accuracy2
+                confusion = confusion2
+                per_class_conf = per_class_conf2
+                reproj_errors = reproj_errors2
+
+            accuracies.append(accuracy)
+            if confusion[0, :].sum() > 0:
+                precision = confusion[0, 0] / (confusion[0, :].sum())
+                precisions.append(precision)
+            if (confusion[0, 0] + confusion[1, 0]) > 0:
+                recall = confusion[0, 0] / (confusion[0, 0] + confusion[1, 0])
+                recalls.append(recall)
+
+            for line_class, errors in reproj_errors.items():
+                if line_class in dict_errors.keys():
+                    dict_errors[line_class].extend(errors)
                 else:
-                    accuracy = accuracy2
-                    confusion = confusion2
-                    per_class_conf = per_class_conf2
-                    reproj_errors = reproj_errors2
+                    dict_errors[line_class] = errors
 
-                accuracies.append(accuracy)
-                if confusion[0, :].sum() > 0:
-                    precision = confusion[0, 0] / (confusion[0, :].sum())
-                    precisions.append(precision)
-                if (confusion[0, 0] + confusion[1, 0]) > 0:
-                    recall = confusion[0, 0] / (confusion[0, 0] + confusion[1, 0])
-                    recalls.append(recall)
+            for line_class, confusion_mat in per_class_conf.items():
+                if line_class in per_class_confusion_dict.keys():
+                    per_class_confusion_dict[line_class] += confusion_mat
+                else:
+                    per_class_confusion_dict[line_class] = confusion_mat
 
-                for line_class, errors in reproj_errors.items():
-                    if line_class in dict_errors.keys():
-                        dict_errors[line_class].extend(errors)
-                    else:
-                        dict_errors[line_class] = errors
-
-                for line_class, confusion_mat in per_class_conf.items():
-                    if line_class in per_class_confusion_dict.keys():
-                        per_class_confusion_dict[line_class] += confusion_mat
-                    else:
-                        per_class_confusion_dict[line_class] = confusion_mat
-
-    print(f" {points_per_circle} points on circles ")
     print(f" On SoccerNet {args.split} set, completeness rate of : {(total_frames - missed) / total_frames}")
     mRecall = np.mean(recalls)
     sRecall = np.std(recalls)

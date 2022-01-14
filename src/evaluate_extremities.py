@@ -4,7 +4,6 @@ import os
 
 import matplotlib.pyplot as plt
 import numpy as np
-from SoccerNet.utils import getListGames
 from tqdm import tqdm
 
 from src.soccerpitch import SoccerPitch
@@ -121,19 +120,16 @@ def scale_points(points_dict, s_width, s_height):
     :param s_height: height scaling factor
     :return: dictionary with scaled points
     """
-    scaled_dict = {}
-    for img, lines in points_dict.items():
-        line_dict = {}
-        for line_class, points in lines.items():
-            scaled_points = []
-            for point in points:
-                new_point = {'x': point['x'] * s_width, 'y': point['y'] * s_height}
-                scaled_points.append(new_point)
-            if len(scaled_points):
-                line_dict[line_class] = scaled_points
-        if len(line_dict):
-            scaled_dict[img] = line_dict
-    return scaled_dict
+    line_dict = {}
+    for line_class, points in points_dict.items():
+        scaled_points = []
+        for point in points:
+            new_point = {'x': point['x'] * s_width, 'y': point['y'] * s_height}
+            scaled_points.append(new_point)
+        if len(scaled_points):
+            line_dict[line_class] = scaled_points
+    if len(line_dict):
+        return line_dict
 
 
 if __name__ == "__main__":
@@ -142,7 +138,7 @@ if __name__ == "__main__":
 
     parser.add_argument('-s', '--soccernet', default="./annotations", type=str,
                         help='Path to the SoccerNet-V3 dataset folder')
-    parser.add_argument('-p', '--prediction', default="/mnt/ahl03/users/fmg/results/soccernet_deeplab_baseline",
+    parser.add_argument('-p', '--prediction', default="./results_bis",
                         required=False, type=str,
                         help="Path to the prediction folder")
     parser.add_argument('-t', '--threshold', default=10, required=False, type=int,
@@ -160,14 +156,23 @@ if __name__ == "__main__":
     dict_errors = {}
     per_class_confusion_dict = {}
 
-    list_games = getListGames(args.split, task="frames")
+    dataset_dir = os.path.join(args.soccernet, args.split)
+    if not os.path.exists(dataset_dir):
+        print("Invalid dataset path !")
+        exit(-1)
 
-    with tqdm(enumerate(list_games), total=len(list_games), ncols=160) as t:
-        for i, game in t:
-            annotation_file = os.path.join(args.soccernet, game, "labels-calibration.json")
-            prediction_file = os.path.join(args.prediction, game, "prediction_extremities.json")
+    annotation_files = [f for f in os.listdir(dataset_dir) if ".json" in f]
+
+    with tqdm(enumerate(annotation_files), total=len(annotation_files), ncols=160) as t:
+        for i, annotation_file in t:
+            frame_index = annotation_file.split(".")[0]
+            annotation_file = os.path.join(args.soccernet, args.split, annotation_file)
+            prediction_file = os.path.join(args.prediction, args.split, f"extremities_{frame_index}.json")
 
             if not os.path.exists(prediction_file):
+                accuracies.append(0.)
+                precisions.append(0.)
+                recalls.append(0.)
                 continue
 
             with open(annotation_file, 'r') as f:
@@ -179,58 +184,53 @@ if __name__ == "__main__":
             predictions = scale_points(predictions, args.resolution_width, args.resolution_height)
             line_annotations = scale_points(line_annotations, args.resolution_width, args.resolution_height)
 
-            for img in line_annotations.keys():
+            img_prediction = predictions
+            img_groundtruth = line_annotations
+            confusion1, per_class_conf1, reproj_errors1 = evaluate_detection_prediction(img_prediction,
+                                                                                        img_groundtruth,
+                                                                                        args.threshold)
+            confusion2, per_class_conf2, reproj_errors2 = evaluate_detection_prediction(img_prediction,
+                                                                                        mirror_labels(
+                                                                                            img_groundtruth),
+                                                                                        args.threshold)
 
-                if img not in predictions.keys():
-                    accuracies.append(0.)
-                    continue
-                img_prediction = predictions[img]
-                img_groundtruth = line_annotations[img]
-                confusion1, per_class_conf1, reproj_errors1 = evaluate_detection_prediction(img_prediction,
-                                                                                            img_groundtruth,
-                                                                                            args.threshold)
-                confusion2, per_class_conf2, reproj_errors2 = evaluate_detection_prediction(img_prediction,
-                                                                                            mirror_labels(
-                                                                                                img_groundtruth),
-                                                                                            args.threshold)
+            accuracy1, accuracy2 = 0., 0.
+            if confusion1.sum() > 0:
+                accuracy1 = confusion1[0, 0] / confusion1.sum()
 
-                accuracy1, accuracy2 = 0., 0.
-                if confusion1.sum() > 0:
-                    accuracy1 = confusion1[0, 0] / confusion1.sum()
+            if confusion2.sum() > 0:
+                accuracy2 = confusion2[0, 0] / confusion2.sum()
 
-                if confusion2.sum() > 0:
-                    accuracy2 = confusion2[0, 0] / confusion2.sum()
+            if accuracy1 > accuracy2:
+                accuracy = accuracy1
+                confusion = confusion1
+                per_class_conf = per_class_conf1
+                reproj_errors = reproj_errors1
+            else:
+                accuracy = accuracy2
+                confusion = confusion2
+                per_class_conf = per_class_conf2
+                reproj_errors = reproj_errors2
 
-                if accuracy1 > accuracy2:
-                    accuracy = accuracy1
-                    confusion = confusion1
-                    per_class_conf = per_class_conf1
-                    reproj_errors = reproj_errors1
+            accuracies.append(accuracy)
+            if confusion[0, :].sum() > 0:
+                precision = confusion[0, 0] / (confusion[0, :].sum())
+                precisions.append(precision)
+            if (confusion[0, 0] + confusion[1, 0]) > 0:
+                recall = confusion[0, 0] / (confusion[0, 0] + confusion[1, 0])
+                recalls.append(recall)
+
+            for line_class, errors in reproj_errors.items():
+                if line_class in dict_errors.keys():
+                    dict_errors[line_class].extend(errors)
                 else:
-                    accuracy = accuracy2
-                    confusion = confusion2
-                    per_class_conf = per_class_conf2
-                    reproj_errors = reproj_errors2
+                    dict_errors[line_class] = errors
 
-                accuracies.append(accuracy)
-                if confusion[0, :].sum() > 0:
-                    precision = confusion[0, 0] / (confusion[0, :].sum())
-                    precisions.append(precision)
-                if (confusion[0, 0] + confusion[1, 0]) > 0:
-                    recall = confusion[0, 0] / (confusion[0, 0] + confusion[1, 0])
-                    recalls.append(recall)
-
-                for line_class, errors in reproj_errors.items():
-                    if line_class in dict_errors.keys():
-                        dict_errors[line_class].extend(errors)
-                    else:
-                        dict_errors[line_class] = errors
-
-                for line_class, confusion_mat in per_class_conf.items():
-                    if line_class in per_class_confusion_dict.keys():
-                        per_class_confusion_dict[line_class] += confusion_mat
-                    else:
-                        per_class_confusion_dict[line_class] = confusion_mat
+            for line_class, confusion_mat in per_class_conf.items():
+                if line_class in per_class_confusion_dict.keys():
+                    per_class_confusion_dict[line_class] += confusion_mat
+                else:
+                    per_class_confusion_dict[line_class] = confusion_mat
 
     mRecall = np.mean(recalls)
     sRecall = np.std(recalls)

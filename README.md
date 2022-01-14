@@ -234,7 +234,7 @@ python baseline_extremities.py -s <path_to_soccernet_dataset> -p <path_to_store_
 And then evaluate the generated predictions:
 
 ```
-python evaluate_detection.py -s <path_to_soccernet_dataset> -p <path_to_predictions> -t <threshold value>
+python evaluate_extremities.py -s <path_to_soccernet_dataset> -p <path_to_predictions> -t <threshold value>
 ```
 
 #### Results
@@ -414,7 +414,7 @@ homography, functions for projection...
 
 You can test the baseline with the following line : 
 
-```python camera.py -s <path to soccernet dataset> -p <path to 1st task prediction>``` 
+```python baseline_cameras.py -s <path to soccernet dataset> -p <path to 1st task prediction>``` 
 
 And to test the evaluation, you can run :
 
