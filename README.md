@@ -24,6 +24,8 @@ task to help you get started!
 
 ## Install
 
+Make sure to have <code>git lfs</code> installed on your machine before cloning this repository to automatically download the network weights in [resources](resources).
+
 With python 3 already installed, the python environment can be installed with the following command:
 
 ```
