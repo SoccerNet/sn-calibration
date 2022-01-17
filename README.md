@@ -13,7 +13,7 @@ Participate in our upcoming Challenge at the [CVSports](https://vap.aau.dk/cvspo
 The participation deadline is fixed at the 30th of May 2022. The official rules and guidelines are available on ChallengeRules.md.
 
 <a href="">
-<p align="center"><img src="Images/Thumbnail.png" width="720"></p>
+<p align="center"><img src="images/Thumbnail.png" width="720"></p>
 </a>
 
 ## Table of content
