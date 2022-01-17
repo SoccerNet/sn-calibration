@@ -8,6 +8,14 @@ developped in collaboration with the SoccerNet team.
 This challenge consists of two distinct tasks which are defined hereafter. We provide sample code and baselines for each
 task to help you get started!
 
+Participate in our upcoming Challenge at the [CVSports](https://vap.aau.dk/cvsports/) workshop at CVPR and try to win up to 1000$ sponsored by [EVS](https://evs.com/)! All details can be found on the [challenge website](), or on the [main page](https://soccer-net.org/).
+
+The participation deadline is fixed at the 30th of May 2022. The official rules and guidelines are available on ChallengeRules.md.
+
+<a href="">
+<p align="center"><img src="Images/Thumbnail.png" width="720"></p>
+</a>
+
 ## Table of content
 
 - Install
