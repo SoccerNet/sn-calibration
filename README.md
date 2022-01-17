@@ -42,7 +42,7 @@ All the data needed for challenge can be downloaded with these lines :
 ```python
 from SoccerNet.Downloader import SoccerNetDownloader
 mySoccerNetDownloader = SoccerNetDownloader(LocalDirectory="path/to/SoccerNet")
-mySoccerNetDownloader.download(task="calibration", split=["train","valid","test","challenge"])
+mySoccerNetDownloader.downloadDataTask(task="calibration", split=["train","valid","test","challenge"])
 ```
 
 Historically, the dataset was first released for an action spotting task. In its first version, the images corresponding
