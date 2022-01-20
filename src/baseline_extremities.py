@@ -268,9 +268,9 @@ if __name__ == "__main__":
         lines_palette.extend(SoccerPitch.palette[line_class])
 
     calib_net = SegmentationNetwork(
-        "../resources/soccer_pitch_segmentation.pth",
-        "../resources/mean.npy",
-        "../resources/std.npy")
+        "resources/soccer_pitch_segmentation.pth",
+        "resources/mean.npy",
+        "resources/std.npy")
 
     dataset_dir = os.path.join(args.soccernet, args.split)
     if not os.path.exists(dataset_dir):

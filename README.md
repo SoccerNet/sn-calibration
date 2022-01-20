@@ -238,13 +238,13 @@ line class.
 You can test the baseline with the following code:
 
 ```
-python baseline_extremities.py -s <path_to_soccernet_dataset> -p <path_to_store_predictions>
+python src/baseline_extremities.py -s <path_to_soccernet_dataset> -p <path_to_store_predictions>
 ```
 
 And then evaluate the generated predictions:
 
 ```
-python evaluate_extremities.py -s <path_to_soccernet_dataset> -p <path_to_predictions> -t <threshold value>
+python src/evaluate_extremities.py -s <path_to_soccernet_dataset> -p <path_to_predictions> -t <threshold value>
 ```
 
 #### Results
@@ -424,11 +424,11 @@ homography, functions for projection...
 
 You can test the baseline with the following line : 
 
-```python baseline_cameras.py -s <path to soccernet dataset> -p <path to 1st task prediction>``` 
+```python src/baseline_cameras.py -s <path to soccernet dataset> -p <path to 1st task prediction>``` 
 
 And to test the evaluation, you can run :
 
-`python evaluate_camera.py -s  <path to soccernet dataset> -p <path to predictions> -t <threshold value>`
+`python src/evaluate_camera.py -s  <path to soccernet dataset> -p <path to predictions> -t <threshold value>`
 
 
 #### Results
