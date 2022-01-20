@@ -356,5 +356,6 @@ if __name__ == "__main__":
             ax1.hist(v, bins=30, range=(0, 60))
             ax1.set_title(k)
             ax1.set_xlabel("Errors in pixel")
+            os.makedirs(f"./results/", exist_ok=True)
             plt.savefig(f"./results/{k}_reprojection_error.png")
             plt.close(fig)
