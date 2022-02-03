@@ -127,37 +127,28 @@ line/circle arc or its intersection with the image side. Since the notion of ext
 semantic class is not well-defined, we will not use this class in the evaluation. However, note that still detecting it
 might be useful for the second task.
 
-As output for a specific game, we expect a json file containing a dictionary, whose keys are the images names (as named
-by the frame extraction implemented in SoccerNet) and whose values are dictionaries of predictions. One prediction
-dictionary is composed of keys that are the full name of the semantic classes that were detected in the image, and each
-value is a list of two elements corresponding to each extremity. An extremity is represented by a dictionary containing
-x and y keys, each key is associated with its value **normalized** by the image dimensions. If there are two different
-pitch elements in the image "17_1.png", we expect a dictionary containing the following informations :
-[illustration]
+As output for a specific image, we expect a json file containing a dictionary, whose keys are the full name of the 
+semantic classes that were detected in the image, and each value is a list of two elements corresponding to each 
+extremity. An extremity is represented by a dictionary containing x and y keys, each key is associated with its value 
+**normalized** by the image dimensions. If there are two different pitch elements in the image "00001.png", we expect a
+dictionary named "extremities_00001.json" containing the following informations :
 
 ```
+# extremities_00001.json
 {
- "17_1.png" = {
-
      "semantic_class_name_1" : [{'x': x1,'y': y1}, {'x': x2,'y': y2}],
      "semantic_class_name_2": [{'x': x3,'y': y3}, {'x': x4,'y': y4}]
-
- },
-...
+      ...
 }
 ```
 
 The json files will be organized as SoccerNet : we expect to receive a zip archive respecting the same folder
-organization. Each json file will be located in its league folder, its corresponding season folder and finally its match
-folder.
+organization. Each json file will be located in its split folder.
 
 ```
-league
-  |__ season years
-         |__ match 1
-         |     |__ prediction_extremities.json
-         |__ match 2
-               |__ prediction_extremities.json
+test 
+|__ extremities_00001.json
+|__ extremities_00002.json
 ```
 
 
@@ -284,57 +275,54 @@ The lens parameters produced must follow the pinhole model. Additionally, the pa
 and thin prism distortion parameters. This corresponds to the full model of
 OpenCV : https://docs.opencv.org/4.5.0/d9/d0c/group__calib3d.html#details
 
-For each game of the test set, we expect to receive a json file named "**prediction_cameras.json**" containing a
-dictionary with an entry for each image. The key of an entry is the image name, and its value is a dictionary containing
-the camera parameters.
+For each image of the test set, we expect to receive a json file named "**camera_{frame_index}.json**" containing a
+dictionary with the camera parameters. 
 
 ```
-{
-    "1_0.png": {
-        "pan_degrees": 14.862476218376278,
-        "tilt_degrees": 78.83988009048775,
-        "roll_degrees": -2.2210919345134497,
-        "position_meters": [
-            32.6100008989567,
-            67.9363036953344,
-            -14.898134157887508
-        ],
-        "x_focal_length": 3921.6013418112757,
-        "y_focal_length": 3921.601341812138,
-        "principal_point": [
-            480.0,
-            270.0
-        ],
-        "radial_distortion": [
-            0.0,
-            0.0,
-            0.0,
-            0.0,
-            0.0,
-            0.0
-        ],
-        "tangential_distortion": [
-            0.0,
-            0.0
-        ],
-        "thin_prism_distortion": [
-            0.0,
-            0.0,
-            0.0,
-            0.0
-        ]
-    },
+# camera_00001.json
+ {
+      "pan_degrees": 14.862476218376278,
+      "tilt_degrees": 78.83988009048775,
+      "roll_degrees": -2.2210919345134497,
+      "position_meters": [
+          32.6100008989567,
+          67.9363036953344,
+          -14.898134157887508
+      ],
+      "x_focal_length": 3921.6013418112757,
+      "y_focal_length": 3921.601341812138,
+      "principal_point": [
+          480.0,
+          270.0
+      ],
+      "radial_distortion": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+      ],
+      "tangential_distortion": [
+          0.0,
+          0.0
+      ],
+      "thin_prism_distortion": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+      ]
+ }
 ```
 
-In a similar manner to the previous task, we expect the files to be organized as soccernet :
+In a similar manner to the previous task, we expect the files to be organized accordingly :
+
 
 ```
-league
-  |__ season years
-         |__ match 1
-         |     |__ prediction_cameras.json
-         |__ match 2
-               |__ prediction_cameras.json
+test 
+|__ camera_00001.json
+|__ camera_00002.json
 ```
 
 ### Evaluation
