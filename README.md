@@ -142,15 +142,18 @@ dictionary named "extremities_00001.json" containing the following informations 
 }
 ```
 
-The json files will be organized as SoccerNet : we expect to receive a zip archive respecting the same folder
-organization. Each json file will be located in its split folder.
+To generate the correct zip archive to send to our evaluation server, if you have organised your results accordingly:
 
 ```
 test 
 |__ extremities_00001.json
 |__ extremities_00002.json
 ```
+then the following command will produce the right **test.zip** file for our evaluation server.
 
+```
+zip -r test.zip test
+```
 
 ### Evaluation
 
@@ -316,13 +319,18 @@ dictionary with the camera parameters.
  }
 ```
 
-In a similar manner to the previous task, we expect the files to be organized accordingly :
+In a similar manner to the previous task, if your results are organized as follows :
 
 
 ```
 test 
 |__ camera_00001.json
 |__ camera_00002.json
+```
+then the following command will produce the right **test.zip** file.
+
+```
+zip -r test.zip test
 ```
 
 ### Evaluation
