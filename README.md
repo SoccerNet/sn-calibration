@@ -8,7 +8,7 @@ developped in collaboration with the SoccerNet team.
 This challenge consists of two distinct tasks which are defined hereafter. We provide sample code and baselines for each
 task to help you get started!
 
-Participate in our upcoming Challenge at the [CVSports](https://vap.aau.dk/cvsports/) workshop at CVPR and try to win up to 1000$ sponsored by [EVS](https://evs.com/)! All details will soon be available on the [challenge website](), or on the [main page](https://www.soccer-net.org/).
+Participate in our upcoming Challenge at the [CVSports](https://vap.aau.dk/cvsports/) workshop at CVPR and try to win up to 1000$ sponsored by [EVS](https://evs.com/)! All details will soon be available on the [challenge website](https://eval.ai/web/challenges/challenge-page/1537/overview ), or on the [main page](https://www.soccer-net.org/).
 
 The participation deadline is fixed at the 30th of May 2022. The official rules and guidelines are available on [ChallengeRules.md](ChallengeRules.md).
 
