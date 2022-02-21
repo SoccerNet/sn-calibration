@@ -32,7 +32,8 @@ The participation deadline is fixed at the 30th of May 2022. The official rules 
 
 ## Install
 
-Make sure to have <code>git lfs</code> installed on your machine before cloning this repository to automatically download the network weights in [resources](resources).
+Download the network weights from google drive https://drive.google.com/file/d/1dbN7LdMV03BR1Eda8n7iKNIyYp9r07sM/view?usp=sharing 
+and place them in [resources](resources).
 
 With python 3 already installed, the python environment can be installed with the following command:
 
