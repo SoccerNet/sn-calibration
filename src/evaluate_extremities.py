@@ -55,6 +55,11 @@ def evaluate_detection_prediction(groundtruth_lines, detected_lines, threshold=2
     detected_classes = set(detected_lines.keys())
     groundtruth_classes = set(groundtruth_lines.keys())
 
+    if "Circle central" in groundtruth_classes:
+        groundtruth_classes.remove("Circle central")
+    if "Circle central" in detected_classes:
+        detected_classes.remove("Circle central")
+
     false_positives_classes = detected_classes - groundtruth_classes
     for false_positive_class in false_positives_classes:
         false_positives = len(detected_lines[false_positive_class])
@@ -70,8 +75,7 @@ def evaluate_detection_prediction(groundtruth_lines, detected_lines, threshold=2
     common_classes = detected_classes - false_positives_classes
 
     for detected_class in common_classes:
-        if detected_class == "Circle center":
-            continue
+
         detected_points = detected_lines[detected_class]
 
         groundtruth_points = groundtruth_lines[detected_class]
@@ -124,7 +128,7 @@ def scale_points(points_dict, s_width, s_height):
     for line_class, points in points_dict.items():
         scaled_points = []
         for point in points:
-            new_point = {'x': point['x'] * s_width, 'y': point['y'] * s_height}
+            new_point = {'x': point['x'] * (s_width-1), 'y': point['y'] * (s_height-1)}
             scaled_points.append(new_point)
         if len(scaled_points):
             line_dict[line_class] = scaled_points
