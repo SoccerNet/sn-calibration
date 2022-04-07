@@ -132,8 +132,7 @@ def scale_points(points_dict, s_width, s_height):
             scaled_points.append(new_point)
         if len(scaled_points):
             line_dict[line_class] = scaled_points
-    if len(line_dict):
-        return line_dict
+    return line_dict
 
 
 if __name__ == "__main__":
