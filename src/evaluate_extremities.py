@@ -34,7 +34,7 @@ def mirror_labels(lines_dict):
     return mirrored_dict
 
 
-def evaluate_detection_prediction(groundtruth_lines, detected_lines, threshold=2.):
+def evaluate_detection_prediction(detected_lines, groundtruth_lines, threshold=2.):
     """
     Evaluates the prediction of extremities. The extremities associated to a class are unordered. The extremities of the
     "Circle central" element is not well-defined for this task, thus this class is ignored.
@@ -44,7 +44,7 @@ def evaluate_detection_prediction(groundtruth_lines, detected_lines, threshold=2
     Computes also the euclidian distance between each predicted extremity and its closest groundtruth extremity, when
     both the groundtruth and the prediction contain the element class.
 
-    :param projected_lines: dictionary of detected lines classes as keys and associated predicted extremities as values
+    :param detected_lines: dictionary of detected lines classes as keys and associated predicted extremities as values
     :param groundtruth_lines: dictionary of annotated lines classes as keys and associated annotated points as values
     :param threshold: distance in pixels that distinguishes good matches from bad ones
     :return: confusion matrix, per class confusion matrix & per class localization errors
