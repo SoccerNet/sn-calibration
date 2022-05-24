@@ -26,8 +26,6 @@ def get_polylines(camera_annotation, width, height, sampling_factor=0.2):
 
     cam = Camera(width, height)
     cam.from_json_parameters(camera_annotation)
-    if cam.image_width != width:
-        cam.scale_resolution(width / cam.image_width)
     field = SoccerPitch()
     projections = dict()
     sides = [
