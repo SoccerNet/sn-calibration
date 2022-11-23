@@ -132,8 +132,8 @@ class Camera:
         lambda2 = 1 / np.linalg.norm(hprim[:, 1])
         lambda3 = np.sqrt(lambda1 * lambda2)
 
-        r0 = hprim[:, 0] / lambda1
-        r1 = hprim[:, 1] / lambda2
+        r0 = hprim[:, 0] * lambda1
+        r1 = hprim[:, 1] * lambda2
         r2 = np.cross(r0, r1)
 
         R = np.column_stack((r0, r1, r2))
