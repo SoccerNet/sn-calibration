@@ -351,7 +351,7 @@ class Camera:
         A[0, 1] = 1.
         A[1, 0] = 1.
         A[1, 2] = -1.
-        A[2, 3] = 9.0 / 16.0
+        A[2, 3] = self.principal_point[1] / self.principal_point[0]
         A[2, 4] = -1.0
         A[3, 0] = H[0] * H[1]
         A[3, 1] = H[0] * H[4] + H[1] * H[3]
