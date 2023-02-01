@@ -44,11 +44,11 @@ def evaluate(gt_zip, prediction_zip, width=960, height=540):
 
         confusion1, per_class_conf1, reproj_errors1 = evaluate_camera_prediction(img_prediction,
                                                                                  img_groundtruth,
-                                                                                 10)
+                                                                                 5)
 
         confusion2, per_class_conf2, reproj_errors2 = evaluate_camera_prediction(img_prediction,
                                                                                  mirror_labels(img_groundtruth),
-                                                                                 10)
+                                                                                 5)
 
         accuracy1, accuracy2 = 0., 0.
         if confusion1.sum() > 0:
@@ -87,11 +87,14 @@ def evaluate(gt_zip, prediction_zip, width=960, height=540):
                 per_class_confusion_dict[line_class] += confusion_mat
             else:
                 per_class_confusion_dict[line_class] = confusion_mat
+
     results = {}
     results["completeness"] = (total_frames - missed) / total_frames
     results["meanRecall"] = np.mean(recalls)
     results["meanPrecision"] = np.mean(precisions)
     results["meanAccuracies"] = np.mean(accuracies)
+    results["finalScore"] = results["completeness"] * results["meanAccuracies"]
+
 
     for line_class, confusion_mat in per_class_confusion_dict.items():
         class_accuracy = confusion_mat[0, 0] / confusion_mat.sum()
@@ -106,9 +109,9 @@ def evaluate(gt_zip, prediction_zip, width=960, height=540):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Evaluation camera calibration task')
 
-    parser.add_argument('-s', '--soccernet', default="./annotations/test_json.zip", type=str,
+    parser.add_argument('-s', '--soccernet', default="/home/fmg/data/SN23/calibration-2023/test_secret.zip", type=str,
                         help='Path to the zip groundtruth folder')
-    parser.add_argument('-p', '--prediction', default="./results_bis/test.zip",
+    parser.add_argument('-p', '--prediction', default="/home/fmg/results/SN23-tests/test.zip",
                         required=False, type=str,
                         help="Path to the  zip prediction folder")
 

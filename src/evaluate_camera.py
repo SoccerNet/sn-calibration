@@ -219,14 +219,14 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='Evaluation camera calibration task')
 
-    parser.add_argument('-s', '--soccernet', default="./annotations", type=str,
+    parser.add_argument('-s', '--soccernet', default="/home/fmg/data/SN23/calibration-2023-bis/", type=str,
                         help='Path to the SoccerNet-V3 dataset folder')
-    parser.add_argument('-p', '--prediction', default="./results_bis",
+    parser.add_argument('-p', '--prediction', default="/home/fmg/results/SN23-tests/",
                         required=False, type=str,
                         help="Path to the prediction folder")
-    parser.add_argument('-t', '--threshold', default=20, required=False, type=int,
+    parser.add_argument('-t', '--threshold', default=5, required=False, type=int,
                         help="Accuracy threshold in pixels")
-    parser.add_argument('--split', required=False, type=str, default="test", help='Select the split of data')
+    parser.add_argument('--split', required=False, type=str, default="valid", help='Select the split of data')
     parser.add_argument('--resolution_width', required=False, type=int, default=960,
                         help='width resolution of the images')
     parser.add_argument('--resolution_height', required=False, type=int, default=540,
@@ -321,7 +321,13 @@ if __name__ == "__main__":
                 else:
                     per_class_confusion_dict[line_class] = confusion_mat
 
-    print(f" On SoccerNet {args.split} set, completeness rate of : {(total_frames - missed) / total_frames}")
+    completeness_score = (total_frames - missed) / total_frames
+    mAccuracy = np.mean(accuracies)
+
+    final_score = completeness_score * mAccuracy
+    print(f" On SoccerNet {args.split} set, final score of : {final_score}")
+    print(f" On SoccerNet {args.split} set, completeness rate of : {completeness_score}")
+
     mRecall = np.mean(recalls)
     sRecall = np.std(recalls)
     medianRecall = np.median(recalls)
@@ -334,7 +340,6 @@ if __name__ == "__main__":
     print(
         f" On SoccerNet {args.split} set, precision mean value : {mPrecision * 100:2.2f}% with standard deviation of {sPrecision * 100:2.2f}% and median of {medianPrecision * 100:2.2f}%")
 
-    mAccuracy = np.mean(accuracies)
     sAccuracy = np.std(accuracies)
     medianAccuracy = np.median(accuracies)
     print(

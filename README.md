@@ -25,11 +25,7 @@ The participation deadline is fixed at the 30th of May 2022. The official rules 
 - Install
 - Dataset
     - Soccer pitch annotations
-- First task : soccer pitch elements localisation
-    - Definition
-    - Evaluation
-    - Baseline
-- Second task : camera calibration
+- Camera calibration
     - Definition
     - Evaluation
     - Baseline
@@ -55,9 +51,9 @@ about these tools can be found here : https://github.com/SilvioGiancola/SoccerNe
 All the data needed for challenge can be downloaded with these lines : 
 
 ```python
-from SoccerNet.Downloader import SoccerNetDownloader
-mySoccerNetDownloader = SoccerNetDownloader(LocalDirectory="path/to/SoccerNet")
-mySoccerNetDownloader.downloadDataTask(task="calibration", split=["train","valid","test","challenge"])
+from SoccerNet.Downloader import SoccerNetDownloader as SNdl
+soccerNetDownloader = SNdl(LocalDirectory="path/to/SoccerNet")
+soccerNetDownloader.downloadDataTask(task="calibration-2023", split=["train","valid","test","challenge"])
 ```
 
 Historically, the dataset was first released for an action spotting task. In its first version, the images corresponding
@@ -66,6 +62,11 @@ to those images. In the last version of the dataset (SoccerNetV3), the extremiti
 markings have been annotated. As a partnership with SoccerNet's team, we use these annotations in a new challenge. The
 challenge is divided in two tasks, the resolution of the first leading to the second one. The first is a soccer pitch
 element localisation task which can then be used for the second task which is a camera calibration task.
+
+**/!\ New** : some annotations have been added: for some images, there are new points annotation along the pitch markings lines.
+For straight pitch marking lines, you can always assume that the extremities are annotated, and sometimes, 
+if the image has been reannotated, there will be a few extra points along the imaged line. 
+
 
 ### Soccer pitch annotations
 
@@ -113,157 +114,18 @@ a pair of 2D point coordinates.
 For the circles drawn on the pitch, the annotations consist in a list of points which give roughly the shape of the
 circle when connected.
 
-Leveraging those annotations quite directly, a first task is defined.
 
-## First task : Soccer pitch elements localisation
 
-On one side, we originally thought of this challenge as a calibration challenge, but we want to allow participations
-with other types of detectors. On the other side, we formulate this task as a localization task, but you could already
-use camera calibration for this task. We just think that the localization of pitch elements might be a good starting
-point for a camera calibration procedure, as the soccer pitch markings and goal posts have known shape and dimensions.
-In this first task, we ask to create an algorithm that predicts the extremities of the soccer pitch elements present in
-the image.
-
-### Definition
-
-Given an image, your algorithm should detect the extremities of every soccer pitch element captured in the image. A
-soccer pitch element is either a pitch line marking or a goal post part. The extremities are either the end of the
-line/circle arc or its intersection with the image side. Since the notion of extremities for the "Circle central"
-semantic class is not well-defined, we will not use this class in the evaluation. However, note that still detecting it
-might be useful for the second task.
-
-As output for a specific image, we expect a json file containing a dictionary, whose keys are the full name of the 
-semantic classes that were detected in the image, and each value is a list of two elements corresponding to each 
-extremity. An extremity is represented by a dictionary containing x and y keys, each key is associated with its value 
-**normalized** by the image dimensions. If there are two different pitch elements in the image "00001.png", we expect a
-dictionary named "extremities_00001.json" containing the following informations :
-
-```
-# extremities_00001.json
-{
-     "semantic_class_name_1" : [{'x': x1,'y': y1}, {'x': x2,'y': y2}],
-     "semantic_class_name_2": [{'x': x3,'y': y3}, {'x': x4,'y': y4}]
-      ...
-}
-```
-
-To generate the correct zip archive to send to our evaluation server, if you have organised your results accordingly:
-
-```
-test 
-|__ extremities_00001.json
-|__ extremities_00002.json
-```
-then the following command will produce the right **test.zip** file for our evaluation server.
-
-```
-zip -r test.zip test
-```
-
-### Evaluation
-
-The evaluation is indirectly based on the euclidian distance between the predicted extremities and the annotated
-extremities in the image resized in 1/4 HD (960,540). Rather than using distance metrics in pixels explicitly which are
-often more difficult to interpret, we formulate the evaluation using accuracy, precision and recall as for a binary
-classification problem. These metrics are not evaluated for the class "Circle central" as its extremities are not
-defined.
-
-The best algorithm will be selected based on accuracy values. We define the sets of true positives, false positives and
-false nagatives as follows:
-
-* True positives : for classes that belong both to the prediction and the groundtruth, a predicted extremity is a True
-  Positive if its L2 distance to the corresponding groundtruth extremity is lower than a certain threshold **t**.
-* False positives : contains points that were detected with a class that do not belong to the groundtruth classes, and
-  points with valid classes whose smallest distance to groundtruth extremity is higher than the threshold.
-* False negatives: All points of a class only present in the groundtruth are counted as False Negatives.
-* True negatives : There are no True Negatives.
-
-The Accuracy for a threshold of t pixels is given by : **Acc@t = TP/(TP+FN+FP)**. We evaluate the accuracy at 5, 10 and
-20 pixels.
-
-![](./doc/threshold_illustration.png)
-
-Note that the order of the extremities in the prediction does not matter as we take the minimal distance to the
-extremities present in the groundtruth.
-
-A predicted extremity
-
-![](./doc/predicted-point.png)
-
-is associated to a class C_p and its coordinates. The groundtruth can be expressed as a set G
-
-![](./doc/GT-set.png)
-
-Corresponding to line or circles points, each of them associated to the element class C. The condition for a predicted
-point P to belong to the True positives is the following :
-
-![](./doc/tp-condition.png)
-
-with _d()_ the euclidian distance function and t the threshold in pixels.
-
-#### Dealing with ambiguities
-
-The dataset contains some ambiguities when we consider each image independently. Without context, one can't know if a
-camera behind a goal is on the left or the right side of the pitch.
-
-For example, this image taken by a camera behind the goal :
-
-![](./doc/tactical_amibguity_resized.jpeg)
-
-It is impossible to say without any context if it was shot by the camera whose filming range is in blue or in yellow.
-
-![](./doc/ambiguity_soccernet_resized.jpeg)
-
-Therefore, we take this ambiguity into account in the evaluation and we consider both accuracy for the groundtruth
-label, and the accuracy for the central projection by the pitch center of the labels. The higher accuracy will be
-selected for your evaluation.
-
-### Baseline
-
-#### Method
-
-For this first task, we define a baseline, in order to give an example. We decided to solve this task with a neural
-network trained to perform semantic line segmentation. We used DeepLabv3 architecture. The target semantic segmentation
-masks were generated by joining successively all the points annotated for each line in the image. We provide the
-dataloader that we used for the training in the src folder.
-
-As the task evaluation is based on the regression of the line extremities, the segmentation maps predicted by the neural
-network are further processed in order to get the line extremities. First, for each class, we fit circles on the
-segmentation mask. All pixels belonging to a same class are thus synthesized by a set of points (i.e. circles centers).
-Then we build polylines based on the circles centers : all the points that are close enough are considered to belong to
-the same polyline. Finally the extremities of each line class will be the extremities of the longest polyline for that
-line class.
-
-You can test the baseline with the following code:
-
-```
-python src/baseline_extremities.py -s <path_to_soccernet_dataset> -p <path_to_store_predictions>
-```
-
-And then evaluate the generated predictions:
-
-```
-python src/evaluate_extremities.py -s <path_to_soccernet_dataset> -p <path_to_predictions> -t <threshold value>
-```
-
-#### Results
-
-Here are the results of our baseline :
-
-| Acc@t    | Acc@5  | Acc@10 | Acc@20 |
-|----------|--------|--------|--------|
-| Baseline | 15.05% | 43.51% | 61.03% |
-
-## Second task: Camera calibration
+##  Camera calibration task
 
 As a soccer pitch has known dimensions, it is possible to use the soccer pitch as a calibration target in order to
-calibrate the camera. Since the pitch is planar, we can model the transformation applied by the camera to the pitch by a
+calibrate the camera. Since the pitch is roughly planar, we can model the transformation applied by the camera to the pitch by a
 homography. In order to estimate the homography between the pitch and its image, we only need 4 lines. We provide a
 baseline in order to extract camera parameters from this kind of images.
 
 ### Definition
 
-In this second task, we ask you to provide valid camera parameters for each image of the test set.
+In this task, we ask you to provide valid camera parameters for each image of the challenge set.
 
 Given a common 3D pitch template, we will use the camera parameters produced by your algorithm in order to estimate the
 reprojection error induced by the camera parameters. The camera parameters include its lens parameters, its orientation,
@@ -324,7 +186,7 @@ dictionary with the camera parameters.
  }
 ```
 
-In a similar manner to the previous task, if your results are organized as follows :
+The results should be organized as follows :
 
 
 ```
@@ -344,6 +206,24 @@ We only evaluate the quality of the camera parameters provided in the image worl
 have. The annotated points are either extremities or points on circles, and thus they do not always have a mapping to a
 3D point, but we can always map them to lines or circles.
 
+#### Dealing with ambiguities
+
+The dataset contains some ambiguities when we consider each image independently. Without context, one can't know if a
+camera behind a goal is on the left or the right side of the pitch.
+
+For example, this image taken by a camera behind the goal :
+
+![](./doc/tactical_amibguity_resized.jpeg)
+
+It is impossible to say without any context if it was shot by the camera whose filming range is in blue or in yellow.
+
+![](./doc/ambiguity_soccernet_resized.jpeg)
+
+Therefore, we take this ambiguity into account in the evaluation and we consider both accuracy for the groundtruth
+label, and the accuracy for the central projection by the pitch center of the labels. The higher accuracy will be
+selected for your evaluation.
+
+
 We evaluate the best submission based on the accuracy at a specific threshold distance. This metric is explained
 hereunder.
 
@@ -351,7 +231,7 @@ hereunder.
 
 The evaluation is based on the reprojection error which we define here as the L2 distance between one annotated point
 and the line to which the point belong. This metric does not account well for false positives and false negatives
-(hallucinated/missing lines projections). Thus we formulate again our evaluation as a binary classification, with a
+(hallucinated/missing lines projections). Thus we formulate our evaluation as a binary classification, with a
 distance threshold with a twist : this time, we consider a pitch marking to be one entity, and for it to be correctly
 detected, all its extremities (or all points annotated for circles) must have a reprojection error smaller than the
 threshold.
@@ -372,13 +252,17 @@ fact the euclidian distance between the groundtruth point and the polyline given
 * False negatives: Line elements only present in the groundtruth are counted as False Negatives.
 * True negatives : There are no True Negatives.
 
-The Accuracy for a threshold of t pixels is given by : **Acc@t = TP/(TP+FN+FP)**. We evaluate the accuracy at 5, 10 and
-20 pixels. We only use images with predicted camera parameters in this evaluation.
+The Accuracy for a threshold of t pixels is given by : **Acc@t = TP/(TP+FN+FP)**. We evaluate the accuracy at 5 pixels. 
+We only use images with predicted camera parameters in this evaluation.
 
 #### Completeness rate
 
 We also measure the completeness rate as the number of camera parameters provided divided by the number of images with
 more than four semantic line annotations in the dataset.
+
+#### Final score 
+
+The evaluation criterion for a camera calibration method is the following : **Completeness x Acc@5**
 
 #### Per class information
 
@@ -416,7 +300,29 @@ The Accuracy for a threshold of t pixels is given by : **Acc@t = TP/(TP+FN+FP)**
 
 #### Method
 
-For our camera calibration baseline, we use the predictions of our first baseline. We use the extremities of the lines (
+For our camera calibration baseline, we proceed in two steps: first we find the pitch markings location in the image, 
+and then given our pitch marking correspondences, we estimate camera parameters.
+
+For this first step, we decided to locate the pitch markings with a neural network trained to perform semantic line 
+segmentation. We used DeepLabv3 architecture. The target semantic segmentation masks were generated by joining 
+successively all the points annotated for each line in the image. We provide the dataloader that we used for the 
+training in the src folder.
+
+The segmentation maps predicted by the neural
+network are further processed in order to get the line extremities. First, for each class, we fit circles on the
+segmentation mask. All pixels belonging to a same class are thus synthesized by a set of points (i.e. circles centers).
+Then we build polylines based on the circles centers : all the points that are close enough are considered to belong to
+the same polyline. Finally the extremities of each line class will be the extremities of the longest polyline for that
+line class.
+
+You can test the line detection with the following code:
+
+```
+python src/detect_extremities.py -s <path_to_soccernet_dataset> -p <path_to_store_predictions>
+```
+
+
+In the second step, we use the extremities of the lines (
 not Circles) detected in the image in order to estimate an homography from the soccer pitch model to the image. We
 provide a class **soccerpitch.py** to define the pitch model according to the rules of the game. The homography is then
 decomposed in camera parameters. All aspects concerning camera parameters are located in the **camera.py**, including
@@ -434,9 +340,9 @@ And to test the evaluation, you can run :
 
 #### Results
 
-| Acc@t    | Acc@5 | Acc@10 | Acc@20 | Completeness |
-|----------|-------|--------|--------|--------------|
-| Baseline | 11.7% | 28.61% | 43.65% | 68 %         |
+| Acc@t    | Acc@5 | Completeness | Final score | 
+|----------|-------|--------------|-------------|
+| Baseline | 11.7% | 68%          | 7.96%       |
 
 #### Improvements
 
@@ -444,7 +350,6 @@ The baseline could be directly improved by :
 
 * exploiting the masks rather than the extremities prediction of the first baseline
 * using ransac to estimate the homography
-* leveraging ellipses to estimate the homography
 * refining the camera parameters using line and ellipses correspondences.
 
 ## Citation

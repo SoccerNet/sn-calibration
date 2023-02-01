@@ -251,11 +251,11 @@ class SegmentationNetwork:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Test')
 
-    parser.add_argument('-s', '--soccernet', default="./annotations/", type=str,
+    parser.add_argument('-s', '--soccernet', default="/home/fmg/data/SN23/calibration-2023-bis/", type=str,
                         help='Path to the SoccerNet-V3 dataset folder')
-    parser.add_argument('-p', '--prediction', default="./results_bis", required=False, type=str,
+    parser.add_argument('-p', '--prediction', default="/home/fmg/results/SN23-tests/", required=False, type=str,
                         help="Path to the prediction folder")
-    parser.add_argument('--split', required=False, type=str, default="test", help='Select the split of data')
+    parser.add_argument('--split', required=False, type=str, default="challenge", help='Select the split of data')
     parser.add_argument('--masks', required=False, type=bool, default=False, help='Save masks in prediction directory')
     parser.add_argument('--resolution_width', required=False, type=int, default=640,
                         help='width resolution of the images')
@@ -268,42 +268,47 @@ if __name__ == "__main__":
         lines_palette.extend(SoccerPitch.palette[line_class])
 
     calib_net = SegmentationNetwork(
-        "resources/soccer_pitch_segmentation.pth",
-        "resources/mean.npy",
-        "resources/std.npy")
+        "../resources/soccer_pitch_segmentation.pth",
+        "../resources/mean.npy",
+        "../resources/std.npy")
 
     dataset_dir = os.path.join(args.soccernet, args.split)
     if not os.path.exists(dataset_dir):
         print("Invalid dataset path !")
         exit(-1)
 
-    frames = [f for f in os.listdir(dataset_dir) if ".jpg" in f]
-    with tqdm(enumerate(frames), total=len(frames), ncols=160) as t:
-        for i, frame in t:
+    with open(os.path.join(dataset_dir, "per_match_info.json"), 'r') as f:
+        match_info = json.load(f)
 
-            output_prediction_folder = os.path.join(args.prediction, args.split)
-            if not os.path.exists(output_prediction_folder):
-                os.makedirs(output_prediction_folder)
-            prediction = dict()
-            count = 0
+    with tqdm(enumerate(match_info.keys()), total=len(match_info.keys()), ncols=160) as t:
+        for i, match in t:
+            frame_list = match_info[match].keys()
 
-            frame_path = os.path.join(dataset_dir, frame)
+            for frame in frame_list:
 
-            frame_index = frame.split(".")[0]
+                output_prediction_folder = os.path.join(args.prediction, args.split)
+                if not os.path.exists(output_prediction_folder):
+                    os.makedirs(output_prediction_folder)
+                prediction = dict()
+                count = 0
 
-            image = cv.imread(frame_path)
-            semlines = calib_net.analyse_image(image)
-            if args.masks:
-                mask = Image.fromarray(semlines.astype(np.uint8)).convert('P')
-                mask.putpalette(lines_palette)
-                mask_file = os.path.join(output_prediction_folder, frame)
-                mask.save(mask_file)
-            skeletons = generate_class_synthesis(semlines, 6)
-            extremities = get_line_extremities(skeletons, 40, args.resolution_width, args.resolution_height)
+                frame_path = os.path.join(dataset_dir, frame)
 
-            prediction = extremities
-            count += 1
+                frame_index = frame.split(".")[0]
 
-            prediction_file = os.path.join(output_prediction_folder, f"extremities_{frame_index}.json")
-            with open(prediction_file, "w") as f:
-                json.dump(prediction, f, indent=4)
+                image = cv.imread(frame_path)
+                semlines = calib_net.analyse_image(image)
+                if args.masks:
+                    mask = Image.fromarray(semlines.astype(np.uint8)).convert('P')
+                    mask.putpalette(lines_palette)
+                    mask_file = os.path.join(output_prediction_folder, frame)
+                    mask.save(mask_file)
+                skeletons = generate_class_synthesis(semlines, 6)
+                extremities = get_line_extremities(skeletons, 40, args.resolution_width, args.resolution_height)
+
+                prediction = extremities
+                count += 1
+
+                prediction_file = os.path.join(output_prediction_folder, f"extremities_{frame_index}.json")
+                with open(prediction_file, "w") as f:
+                    json.dump(prediction, f, indent=4)
