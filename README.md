@@ -16,7 +16,7 @@ Participate in our upcoming Challenge at the [CVSports](https://vap.aau.dk/cvspo
 
 The participation deadline is fixed at the 30th of May 2022. The official rules and guidelines are available on [ChallengeRules.md](ChallengeRules.md).
 
-<a href="https://youtu.be/tA9E1hkiyB0">
+<a href="https://www.youtube.com/watch?v=nxywN6X_0oE">
 <p align="center"><img src="images/Thumbnail.png" width="720"></p>
 </a>
 
@@ -190,15 +190,11 @@ The results should be organized as follows :
 
 
 ```
-test 
+test.zip
 |__ camera_00001.json
 |__ camera_00002.json
 ```
-then the following command will produce the right **test.zip** file.
 
-```
-zip -r test.zip test
-```
 
 ### Evaluation
 
