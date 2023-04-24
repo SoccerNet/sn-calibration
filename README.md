@@ -14,7 +14,7 @@ task to help you get started!
 
 Participate in our upcoming Challenge at the [CVSports](https://vap.aau.dk/cvsports/) workshop at CVPR and try to win up to 1000$ sponsored by [EVS](https://evs.com/)! All details are available on the [challenge website](https://eval.ai/web/challenges/challenge-page/1537/overview ), or on the [main page](https://www.soccer-net.org/).
 
-The participation deadline is fixed at the 30th of May 2022. The official rules and guidelines are available on [ChallengeRules.md](ChallengeRules.md).
+The participation deadline is fixed at the 30th of May 2023. The official rules and guidelines are available on [ChallengeRules.md](ChallengeRules.md).
 
 <a href="https://www.youtube.com/watch?v=nxywN6X_0oE">
 <p align="center"><img src="images/Thumbnail.png" width="720"></p>
