@@ -25,7 +25,7 @@ Prizes 💲💲💲 include $1000 cash award, sponsored by [EVS Broadcast Equipm
 
  - For each task, the winner is the individual/team who reach the highest performance on the **challenge** set.
  - The metrics taken into consideration is the combined metric: completeness * Accuracy@5.
- - The deadline to submit your results is May 30th at 11.59 pm Anywhere on earth.
+ - The deadline to submit your results is May 30th at 11.59 pm  Pacific Time.
  - The teams that perform best will be granted $1000 from our sponsor [EVS Broadcast Equipment](https://evs.com/).
  - In order to be eligible for the prize, we require the individual/team to provide a short report describing the details of the methodology (CVPR format, max 2 pages)
 
