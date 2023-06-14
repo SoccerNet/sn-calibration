@@ -10,7 +10,6 @@ developped in collaboration with the SoccerNet team.
 This challenge consists of two distinct tasks which are defined hereafter. We provide sample code and baselines for each
 task to help you get started!
 
-## /!\ The challenge set has been updated, download it again to get the last version !
 
 Participate in our upcoming Challenge at the [CVSports](https://vap.aau.dk/cvsports/) workshop at CVPR and try to win up to 1000$ sponsored by [EVS](https://evs.com/)! All details are available on the [challenge website](https://eval.ai/web/challenges/challenge-page/1537/overview ), or on the [main page](https://www.soccer-net.org/).
 
@@ -112,7 +111,7 @@ consists in the list of all extremities of the semantic elements of the pitch pr
 a pair of 2D point coordinates.
 
 For the circles drawn on the pitch, the annotations consist in a list of points which give roughly the shape of the
-circle when connected.
+circle when connected. Note that due to new annotations, the sequential order of circle points is no longer guaranteed. 
 
 
 
