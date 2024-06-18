@@ -285,7 +285,7 @@ selected for your evaluation.
 We evaluate the best submission based on the accuracy at a specific threshold distance. This metric is explained
 hereunder.
 
-#### Accuracy @ threshold
+#### JaC @ threshold
 
 The evaluation is based on the reprojection error which we define here as the L2 distance between one annotated point
 and the line to which the point belong. This metric does not account well for false positives and false negatives
@@ -310,7 +310,7 @@ fact the euclidian distance between the groundtruth point and the polyline given
 * False negatives: Line elements only present in the groundtruth are counted as False Negatives.
 * True negatives : There are no True Negatives.
 
-The Accuracy for a threshold of t pixels is given by : **Acc@t = TP/(TP+FN+FP)**. We evaluate the accuracy at 5 pixels. 
+The Jaccard index for Camera Calibration for a threshold of t pixels is given by : **JaC@t = TP/(TP+FN+FP)**. We evaluate the accuracy at 5 pixels. 
 We only use images with predicted camera parameters in this evaluation.
 
 #### Completeness rate
@@ -320,11 +320,11 @@ more than four semantic line annotations in the dataset.
 
 #### Final score 
 
-The evaluation criterion for a camera calibration method is the following : **Completeness x Acc@5**
+The evaluation criterion for a camera calibration method is the following : **Completeness x JaC@5**
 
 #### Per class information
 
-The global accuracy described above has the advantage to treat all soccer pitch marking types equivalently even if the
+The global jaccard index described above has the advantage to treat all soccer pitch marking types equivalently even if the
 groundtruth contains more annotated points for a specific class. For instance, a circle is annotated with 9 points on
 average, whilst rectilinear elements have usually two points annotated. But this metric might be harder as we consider
 all points annotated instead of each of them independently. This is precisely why we propose this per class metric, that
@@ -350,8 +350,7 @@ The confusion matrices are computed per class in the following way :
 * False negatives: All groundtruth points whose class is only present in the groundtruth are counted as False Negatives.
 * True negatives : There are no True Negatives.
 
-The Accuracy for a threshold of t pixels is given by : **Acc@t = TP/(TP+FN+FP)**. We evaluate the accuracy at 5, 10 and
-20 pixels. We only use images with predicted camera parameters in this evaluation.
+The Jaccard index for Camera Calibration for a threshold of t pixels is given by : **JaC@t = TP/(TP+FN+FP)**. We evaluate it at 5 pixels. We only use images with predicted camera parameters in this evaluation.
 
 
 ### Baseline
@@ -398,7 +397,7 @@ And to test the evaluation, you can run :
 
 #### Results
 
-| Acc@t    | Acc@5 | Completeness | Final score | 
+|     | JaC@5 | Completeness | Final score | 
 |----------|-------|--------------|-------------|
 | Baseline | 11.7% | 68%          | 7.96%       |
 
@@ -415,6 +414,15 @@ For further information check out the paper and supplementary material:
 https://arxiv.org/abs/2210.02365
 
 Please cite our work if you use the SoccerNet dataset:
+```bibtex
+@inproceedings{Magera2024AUniversal,
+title = {A Universal Protocol to Benchmark Camera Calibration for Sports},
+author = {Magera, Floriane and Hoyoux, Thomas and Barnich, Olivier and Van Droogenbroeck, Marc},
+booktitle = {IEEE International Conference on Computer Vision and Pattern Recognition Workshops (CVPRW), CVsports},
+month = {June},
+year = {2024},
+address = {Seattle, Washington, USA}
+```
 ```bibtex
 @inproceedings{Giancola_2022,
 	doi = {10.1145/3552437.3558545},
